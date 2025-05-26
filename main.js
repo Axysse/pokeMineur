@@ -97,8 +97,8 @@ document.addEventListener('DOMContentLoaded', async () => {
      */
     function createGrid(rows, cols) {
         gridElement.innerHTML = ''; // Vide la grille existante
-        gridElement.style.gridTemplateColumns = `repeat(${cols}, 70px)`; // Définit les colonnes CSS
-        gridElement.style.gridTemplateRows = `repeat(${rows}, 70px)`; // Définit les lignes CSS
+        gridElement.style.gridTemplateColumns = `repeat(${cols}, 60px)`; // Définit les colonnes CSS
+        gridElement.style.gridTemplateRows = `repeat(${rows}, 60px)`; // Définit les lignes CSS
 
         // Initialise la variable 'grid' logique (non utilisée directement pour le DOM ici, mais peut servir pour l'état interne)
         grid = Array(rows).fill(null).map(() => Array(cols).fill({
