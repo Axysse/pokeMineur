@@ -4,6 +4,7 @@ let allPokemonData = []; // Stocke toutes les données Pokémon récupérées
 let gameOver = false; // État du jeu (terminé ou non)
 let safeCellsToReveal = 0; // Nombre total de cellules sûres à révéler pour gagner
 let revealedSafeCellsCount = 0; // Nombre de cellules sûres actuellement révélées par le joueur
+let grid;
 
 // Constantes pour la taille de la grille
 const GRID_COLS = 7;
