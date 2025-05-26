@@ -16,13 +16,20 @@
             <div id="grid"></div>
             <a href="" id="replay" class="hidden p-1 bg-yellow-400 border-2 border-solid">REJOUER ?</a>
         </article>
-        <article class="flex flex-col items-center gap-2 ml-24 mt-32">
+        <article class="flex flex-col items-center gap-2 ml-24 mt-18">
             <div class="flex flex-row text-xl">
-                <p>Pleins de pokéballs en vue!</p> <img class="w-12" src="img/ball.png">
+                <p>Pleins de pokéballs en vue!</p> 
             </div>
             <p class="text-xl text-center">Ramassez-en le plus possible. Attention aux vils Voltorbes <br> qui se cachent parmi les boules! </p>
             <p class="text-xl text-center">Mais prenez garde! Ces créatures fourbes et démoniaques peuvent aussi <br> se cacher derrière les chiffres  qui se cachent parmi les boules! </p>
             <p>Et attention aux oreilles.</p>
+            <div class="ml-24 mt-12 text-xl flex flex-col items-center">
+                <p>Aide:</p>
+                <p>Une case blanche = une case déjà validée, pas de risques.</p>
+                <div class="flex flex-row"><p>Une</p><img class="w-12" src="img/ball.png"> = soit une simple pokéball soit un Voltorbe! </div>
+                <div class="flex flex-row"><p> Un chiffre sur une case représente le nombre de Voltorbe adjacent à cette case parmi les 9 cases adjacentes.</p></div>
+                <p>Donc un chiffre sur une case grise peut-être un Voltobre caché!</p>
+            </div>
         </article>
     </section>
     <script type="module" src="main.js"></script>
