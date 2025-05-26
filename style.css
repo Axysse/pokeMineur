@@ -8,6 +8,51 @@ body {
     margin: 0;
 }
 
+@media (max-width: 768px) { /* Correspond au breakpoint 'md' de Tailwind */
+    .cell {
+        width: 35px; /* Largeur de 40px sous le breakpoint md */
+        height: 35px; /* Hauteur de 40px sous le breakpoint md */
+        font-size: 1.2em;
+    }
+    #grid {
+        gap: 3px;
+        padding: 3px;
+    }
+    #titre {
+        font-size: 1.8em;
+    }
+    #replay {
+        padding: 10px 20px;
+        font-size: 1em;
+    }
+    .message-box {
+        font-size: 1.2em;
+        padding: 15px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .cell {
+        width: 40px; /* Maintenu à 40px pour les écrans encore plus petits */
+        height: 40px; /* Maintenu à 40px pour les écrans encore plus petits */
+        font-size: 1.2em; /* Ajusté car la taille de la cellule est plus petite */
+    }
+    #grid {
+        gap: 2px;
+        padding: 2px;
+    }
+    #titre {
+        font-size: 1.5em;
+    }
+    #replay {
+        font-size: 0.9em;
+    }
+    .message-box {
+        font-size: 1em;
+        padding: 10px 15px;
+    }
+}
+
 #grid {
     display: grid;
     /* Ces valeurs seront définies par JavaScript */
