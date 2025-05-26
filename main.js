@@ -4,7 +4,7 @@ let allPokemonData = []; // Stocke toutes les données Pokémon récupérées
 let gameOver = false; // État du jeu (terminé ou non)
 let safeCellsToReveal = 0; // Nombre total de cellules sûres à révéler pour gagner
 let revealedSafeCellsCount = 0; // Nombre de cellules sûres actuellement révélées par le joueur
-let grid;
+let grid; // Déclaration de la variable 'grid' pour éviter 'ReferenceError'
 
 // Constantes pour la taille de la grille
 const GRID_COLS = 7;
@@ -101,8 +101,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         gridElement.style.gridTemplateRows = `repeat(${rows}, 70px)`; // Définit les lignes CSS
 
         // Initialise la variable 'grid' logique (non utilisée directement pour le DOM ici, mais peut servir pour l'état interne)
-        // Note: Cette variable 'grid' n'est pas utilisée dans la logique actuelle du jeu (tout est basé sur le DOM).
-        // Si tu souhaites l'utiliser, il faudrait la synchroniser avec les attributs DOM.
         grid = Array(rows).fill(null).map(() => Array(cols).fill({
             isMine: false,
             isRevealed: false,
@@ -118,9 +116,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     function game_over() {
         gameOver = true; // Met l'état du jeu à terminé
         titre.innerText = "Oh non! C'était un Voltorbe!"; // Met à jour le titre
-        // Désactive les clics sur toutes les cellules
-        document.querySelectorAll('.cell').forEach(cell => {
-            cell.style.pointerEvents = 'none';
+
+        // Révèle tous les Voltorbes et les chiffres sur les autres cases
+        allCells.forEach(cell => {
+            if (cell.getAttribute("status") === "boom") {
+                // Révèle les Voltorbes
+                if (!cell.classList.contains('revealed')) {
+                    cell.classList.add('revealed'); // Révèle la cellule
+                    const existingContent = cell.querySelector('img, span.mine-count');
+                    if (existingContent) {
+                        existingContent.remove();
+                    }
+                    const cellImg = document.createElement("img");
+                    cellImg.src = allPokemonData[99].sprite; // Affiche l'image du Voltorbe
+                    cellImg.classList.add("w-28", "h-28");
+                    cell.appendChild(cellImg);
+                }
+            } else {
+                // Révèle les chiffres sur les cases sûres non encore révélées
+                if (!cell.classList.contains('revealed')) {
+                    cell.classList.add('revealed'); // Révèle la cellule
+                    updateCellContent(cell); // Met à jour son contenu (chiffre ou Pokéball)
+                }
+            }
+            cell.style.pointerEvents = 'none'; // Désactive les clics sur toutes les cellules
         });
         replay.classList.remove("hidden"); // Affiche le bouton de rejouer
     }
@@ -268,5 +287,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         messageBox.classList.add('message-box');
         messageBox.textContent = message;
         document.body.appendChild(messageBox);
+
+        // Supprime le message après quelques secondes
+        setTimeout(() => {
+            messageBox.remove();
+        }, 3000); // Message disparaît après 3 secondes
     }
 });
