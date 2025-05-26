@@ -1,0 +1,42 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #b49898;
+    margin: 0;
+}
+
+#grid {
+    display: grid;
+    /* Ces valeurs seront définies par JavaScript */
+    /* grid-template-columns: repeat(10, 30px); */
+    /* grid-template-rows: repeat(10, 30px); */
+    gap: 1px;
+    border: 1px solid #666;
+    background-color: #666;
+}
+
+.cell {
+    width: 70px;
+    height: 70px;
+    background-color: #bbb;
+    border: 1px solid #999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+}
+
+.cell:hover{
+    background-color: #707070;
+}
+
+.cell.revealed {
+    background-color: #eee;
+    border: 1px solid #ccc;
+    cursor: default;
+}

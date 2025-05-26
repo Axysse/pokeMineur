@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PokeDémineur</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="flex flex-col items-center gap-8">
+    <h1 class="text-2xl" id="titre">Démineur Pokèmon</h1>
+    <section class="flex flex-row justify-center">
+        <article class="flex flex-col items-center gap-8">
+            <div id="grid"></div>
+            <a href="" id="replay" class="hidden p-1 bg-yellow-400 border-2 border-solid">REJOUER ?</a>
+        </article>
+        <article class="flex flex-col items-center gap-2 ml-24 mt-32">
+            <div class="flex flex-row text-xl">
+                <p>Pleins de pokéballs en vue!</p> <img class="w-12" src="img/ball.png">
+            </div>
+            <p class="text-xl text-center">Ramassez-en le plus possible. Attention aux vils Voltorbes <br> qui se cachent parmi les boules! </p>
+            <p class="text-xl text-center">Mais prenez garde! Ces créatures fourbes et démoniques peuevnt aussi <br> se cacher derrière les chiffres  qui se cachent parmi les boules! </p>
+            <p>Et attention aux oreilles.</p>
+        </article>
+    </section>
+    <script type="module" src="main.js"></script>
+</body>
+
+</html>
