@@ -5,6 +5,8 @@ let gameOver = false; // État du jeu (terminé ou non)
 let safeCellsToReveal = 0; // Nombre total de cellules sûres à révéler pour gagner
 let revealedSafeCellsCount = 0; // Nombre de cellules sûres actuellement révélées par le joueur
 let grid; // Déclaration de la variable 'grid' pour éviter 'ReferenceError'
+let pokeballNumber; // Référence à l'élément DOM qui affichera le nombre de Pokéballs
+let pokeballNbr = 0; // Compteur de Pokéballs trouvées
 
 // Constantes pour la taille de la grille
 const GRID_COLS = 7;
@@ -19,6 +21,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     const gridElement = document.getElementById('grid');
     const titre = document.getElementById("titre");
     const replay = document.getElementById("replay");
+    pokeballNumber = document.getElementById("pokeballNumber"); // Initialise la référence DOM
+
+    // Initialise l'affichage du nombre de Pokéballs à 0
+    pokeballNumber.innerHTML = pokeballNbr;
+
+    /**
+     * Met à jour le compteur de Pokéballs affiché.
+     */
+    function updateBallNumber() {
+        pokeballNbr++;
+        pokeballNumber.innerHTML = pokeballNbr;
+    }
 
     // Initialise la grille du jeu
     createGrid(GRID_ROWS, GRID_COLS);
@@ -69,8 +83,22 @@ document.addEventListener('DOMContentLoaded', async () => {
                 element.classList.add('revealed'); // Révèle la cellule cliquée
                 revealedSafeCellsCount++; // Incrémente le compteur de cellules sûres révélées
 
-                // Met à jour le contenu de la cellule cliquée elle-même (affichera son propre compte)
+                // Calcule le nombre de bombes autour de la cellule cliquée pour savoir si elle affichera une Pokéball
+                const neighborsForClickedCellCount = checkNearCells(element, GRID_COLS);
+                let clickedCellBoomCount = 0;
+                neighborsForClickedCellCount.forEach(neighbor => {
+                    if (neighbor.getAttribute("status") === "boom") {
+                        clickedCellBoomCount++;
+                    }
+                });
+
+                // Met à jour le contenu de la cellule cliquée elle-même (affichera son propre compte ou Pokéball)
                 updateCellContent(element);
+
+                // NOUVEAU : Si la cellule cliquée est sûre et qu'elle n'a pas de bombes autour (donc affiche une Pokéball)
+                if (clickedCellBoomCount === 0) {
+                    updateBallNumber(); // Incrémente le compteur de Pokéballs trouvées
+                }
 
                 // Obtient les voisins de la cellule cliquée
                 const clickedCellNeighbors = checkNearCells(element, GRID_COLS);
@@ -97,8 +125,9 @@ document.addEventListener('DOMContentLoaded', async () => {
      */
     function createGrid(rows, cols) {
         gridElement.innerHTML = ''; // Vide la grille existante
-        gridElement.style.gridTemplateColumns = `repeat(${cols}, 60px)`; // Définit les colonnes CSS
-        gridElement.style.gridTemplateRows = `repeat(${rows}, 60px)`; // Définit les lignes CSS
+        // Utilise 70px par défaut pour correspondre au CSS non-responsive
+        gridElement.style.gridTemplateColumns = `repeat(${cols}, 60px)`;
+        gridElement.style.gridTemplateRows = `repeat(${rows}, 60px)`;
 
         // Initialise la variable 'grid' logique (non utilisée directement pour le DOM ici, mais peut servir pour l'état interne)
         grid = Array(rows).fill(null).map(() => Array(cols).fill({

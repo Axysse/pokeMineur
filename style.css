@@ -54,6 +54,11 @@ body {
 }
 
 #grid {
+    background-image: url('./img/grass.jpg'); /* Remplacez l'URL par le chemin de votre image */
+    background-size: cover; /* Ajuste la taille de l'image pour couvrir toute la zone, sans déformer */
+    background-repeat: no-repeat; /* Empêche l'image de se répéter */
+    background-position: center; /* Centre l'image de fond */
+
     display: grid;
     /* Ces valeurs seront définies par JavaScript */
     /* grid-template-columns: repeat(10, 30px); */
@@ -66,7 +71,7 @@ body {
 .cell {
     width: 60px;
     height: 60px;
-    background-color: #bbb;
+    background-color: #bbbbbba4;
     border: 1px solid #999;
     display: flex;
     justify-content: center;
@@ -81,7 +86,7 @@ body {
 }
 
 .cell.revealed {
-    background-color: #eee;
+    background-color: #eeeeeea1;
     border: 1px solid #ccc;
     cursor: default;
 }
