@@ -39,6 +39,9 @@ const EVOLUTIONS = {
   61: { evolvesTo: 62, threshold: 30, moneyBonus: 350 }, // tetarte évolue en Tartard après 50 captures
   74: { evolvesTo: 75, threshold: 40, moneyBonus: 150 }, // racaillou évolue en Gravalanch après 50 captures
   75: { evolvesTo: 76, threshold: 30, moneyBonus: 350 }, // Gravalanch évolue en Grolem après 50 captures
+  79: { evolvesTo: 80, threshold: 30, moneyBonus: 300 }, // Ramoloss évolue en Flagadoss après 50 captures
+  118: { evolvesTo: 119, threshold: 30, moneyBonus: 70 }, // Poissireine évolue en Poissoroy après 50 captures
+  116: { evolvesTo: 117, threshold: 30, moneyBonus: 150 }, // Hypotrempe évolue en Hyporoi après 50 captures
 };
 
 const LEVELS = {
@@ -108,6 +111,7 @@ const LEVELS = {
       { pokemonId: 54, chance: 2, money: 1000 }, // Psykokwak
       { pokemonId: 60, chance: 10, money: 70 }, // Ptitard
       { pokemonId: 129, chance: 35, money: 10 }, // Magicarpe
+      { pokemonId: 79, chance: 15, money: 40 }, // Ramoloss
     ],
   },
   caverne: {
@@ -126,6 +130,21 @@ const LEVELS = {
       { pokemonId: 46, chance: 15, money: 50 }, // Paras
       { pokemonId: 35, chance: 2, money: 350 }, // Melofée
       { pokemonId: 27, chance: 20, money: 40 }, // Sabelette
+    ],
+  },
+  plage: {
+    id: "plage",
+    title: "Plage",
+    rows: 8,
+    cols: 8,
+    minMines: 9,
+    maxMines: 16,
+    backgroundImage: "./img/cavern.jpg",
+    cost: 1500,
+    encounterTable: [
+        { pokemonId: 129, chance: 35, money: 10 }, // Magicarpe
+        { pokemonId: 118, chance: 25, money: 30 }, // Poissirène
+        { pokemonId: 116, chance: 15, money: 50 }, // hypotempe
     ],
   },
 };
