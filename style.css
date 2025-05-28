@@ -307,3 +307,55 @@ body {
     font-size: 1.1rem;
     margin-bottom: 10px;
 }
+
+.evolution-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85); /* Plus sombre pour une immersion forte */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1002; /* Au-dessus de toutes les autres modales */
+    animation: fadeIn 0.3s ease-out;
+}
+
+.evolution-modal-content {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    max-width: 500px;
+    width: 90%;
+    color: #333;
+    animation: slideIn 0.5s ease-out;
+    border: 5px solid #a052ff; /* Bordure violette thématique */
+    background: linear-gradient(145deg, #e0b0ff, #a052ff); /* Dégradé stylisé */
+    color: white; /* Texte en blanc pour le dégradé */
+}
+
+.evolution-modal-content h3 {
+    font-size: 2.5rem;
+    color: #ffd700; /* Jaune doré pour le titre "Félicitations" */
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.evolution-modal-content p {
+    font-size: 1.4rem;
+    color: #eee;
+    margin-bottom: 20px;
+}
+
+.evolution-display {
+    min-height: 250px; /* Assure un peu d'espace pour l'animation */
+}
+
+/* Animation de fondu (si non déjà présente) */
+@keyframes animate-fade-in {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
