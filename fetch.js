@@ -3,7 +3,7 @@ export async function fetchPoke() {
 
 try {
         // Première requête pour obtenir la liste des Pokémon (limite à 150)
-        const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=150');
+        const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=151');
         if (!response.ok) {
             // Gère les erreurs HTTP pour la requête initiale
             throw new Error(`Erreur HTTP ! statut : ${response.status}`);

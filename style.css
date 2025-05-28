@@ -90,3 +90,90 @@ body {
     border: 1px solid #ccc;
     cursor: default;
 }
+
+/* Styles pour la modal de révélation des Pokéballs */
+.pokeball-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); /* Fond semi-transparent */
+    display: none; /* Masqué par défaut, affiché par JS */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Assure qu'elle est au-dessus de tout le reste */
+    backdrop-filter: blur(5px); /* Effet de flou derrière la modal */
+    animation: fadeIn 0.3s ease-out; /* Animation d'apparition */
+}
+
+.pokeball-modal-content {
+    background-color: #f7f7f7;
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    max-width: 90%;
+    max-height: 90%;
+    overflow-y: auto;
+    animation: slideIn 0.4s ease-out; /* Animation de slide-in */
+}
+
+.pokeball-modal-content h2 {
+    font-size: 2.5rem; /* Taille du titre */
+    margin-bottom: 20px;
+    color: #333;
+}
+
+#pokemon-reveal-area {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.revealed-pokemon-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end; /* Alignement du texte en bas */
+    width: 100px; /* Largeur de chaque élément Pokémon */
+    height: 140px; /* Hauteur de chaque élément Pokémon pour laisser de la place au nom */
+    padding: 10px;
+    background-color: #e0e0e0;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    animation: popIn 0.5s ease-out forwards; /* Animation d'apparition individuelle */
+    opacity: 0; /* Masqué par défaut pour l'animation */
+}
+
+.revealed-pokemon-item img {
+    max-width: 80px;
+    max-height: 80px;
+    object-fit: contain;
+    margin-bottom: 5px;
+}
+
+.revealed-pokemon-item p {
+    font-weight: bold;
+    color: #555;
+    font-size: 0.9em;
+}
+
+/* Animations CSS */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes popIn {
+    0% { transform: scale(0.5); opacity: 0; }
+    80% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
