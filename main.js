@@ -17,7 +17,7 @@ let playerMoneyElement; // NOUVEAU : Élément DOM pour afficher l'argent
 
 const EVOLUTIONS = {
   19: { evolvesTo: 20, threshold: 50, moneyBonus: 50 }, // Rattata (19) évolue en Rattatac (20) après 50 captures
-  16: { evolvesTo: 17, threshold: 10, moneyBonus: 50 }, // Roucool (16) évolue en Roucoups (17) après 50 captures
+  16: { evolvesTo: 17, threshold: 50, moneyBonus: 50 }, // Roucool (16) évolue en Roucoups (17) après 50 captures
   17: { evolvesTo: 18, threshold: 60, moneyBonus: 150 }, // Roucoups (17) évolue en Roucarnage (18) après 70 captures
 };
 
