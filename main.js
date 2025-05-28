@@ -466,6 +466,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           isMine: false,
           isRevealed: false,
           isFlagged: false,
+          isFlagged: false,
           minesAround: 0,
         })
       );
@@ -481,6 +482,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         cell.id = i;
         // Ne pas définir le statut ici
         gridElement.appendChild(cell);
+        cell.addEventListener('contextmenu', (event) => handleRightClick(event, r, c));
         i++;
       }
     }
@@ -1045,4 +1047,48 @@ document.addEventListener("DOMContentLoaded", async () => {
       }, 500);
     }
   }
+
+  function handleRightClick(event, row, col) {
+    event.preventDefault(); // <-- TRÈS IMPORTANT : Empêche le menu contextuel du navigateur
+
+    const cellElement = event.currentTarget; // L'élément div de la case
+
+    // Assumons que tu as un moyen d'accéder à l'objet logique de la cellule à (row, col)
+    // Par exemple, si tu as une structure comme `grid[row][col]` qui stocke l'état de la cellule
+    const cellData = grid[row][col]; // Si 'grid' est ton tableau 2D de données pour le démineur
+
+    // Si la case est déjà révélée, on ne peut pas mettre de drapeau dessus
+    if (cellData.isRevealed) {
+        return;
+    }
+
+    if (cellData.isFlagged) {
+        // Si la case a déjà un drapeau, on le retire
+        cellData.isFlagged = false;
+        cellElement.style.backgroundImage = ''; // Retire l'image de fond
+        cellElement.classList.remove('flagged'); // Retire la classe CSS si tu en utilises une
+        // Optionnel : Mettre à jour le compteur de drapeaux restants si tu en as un
+        // flagsRemaining++;
+        // updateFlagsDisplay();
+    } else {
+        // Si la case n'a pas de drapeau, on en place un
+        // Optionnel : Vérifier si le nombre max de drapeaux n'est pas atteint
+        // if (flagsRemaining > 0) {
+            cellData.isFlagged = true;
+            cellElement.style.backgroundImage = 'url("./img/flag.png")'; // Chemin vers ton image de drapeau
+            cellElement.style.backgroundSize = 'contain'; // Pour s'assurer que l'image s'adapte
+            cellElement.style.backgroundRepeat = 'no-repeat';
+            cellElement.style.backgroundPosition = 'center';
+            cellElement.classList.add('flagged'); // Ajoute une classe CSS si tu veux styliser les drapeaux
+
+            // Optionnel : Mettre à jour le compteur de drapeaux restants
+            // flagsRemaining--;
+            // updateFlagsDisplay();
+        // } else {
+        //     // Tu peux ajouter ici une notification si plus de drapeaux disponibles
+        //     console.log("Plus de drapeaux disponibles !");
+        // }
+    }
+}
+
 });
