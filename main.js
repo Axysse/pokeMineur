@@ -11,6 +11,7 @@ let pokeballNbr = 0;
 let allCells;
 let pokeList;
 let capturedPokemonIds = new Set();
+let capturedPokemonCounts = {};
 let playerMoney = 0; // NOUVEAU : Variable pour l'argent du joueur
 let playerMoneyElement; // NOUVEAU : Élément DOM pour afficher l'argent
 
@@ -21,15 +22,15 @@ const LEVELS = {
     title: "Hautes-herbes",
     rows: 5,
     cols: 5,
-    minMines: 2, // Minimum de Voltorbes
-    maxMines: 3, // Maximum de Voltorbes
+    minMines: 0, // Minimum de Voltorbes
+    maxMines: 0, // Maximum de Voltorbes
     backgroundImage: "./img/grass.jpg",
     cost: 0,
     encounterTable: [
       { pokemonId: 16, chance: 30, money: 10 }, // Roucool
       { pokemonId: 19, chance: 30, money: 10 }, // Ratata
     ],
-  },  
+  },
   route_de_jadielle: {
     id: "route-de-jadielle",
     title: "Route de Jadielle",
@@ -45,6 +46,9 @@ const LEVELS = {
       { pokemonId: 19, chance: 25, money: 10 }, // Ratata
       { pokemonId: 52, chance: 10, money: 40 }, // Miaouss
       { pokemonId: 56, chance: 5, money: 70 }, // Férosinge
+      { pokemonId: 29, chance: 15, money: 40 }, // Nidoran Femelle
+      { pokemonId: 32, chance: 15, money: 40 }, // Nidoran Mâle
+      { pokemonId: 21, chance: 20, money: 25 }, // Piafabec
     ],
   },
   foret: {
@@ -62,7 +66,7 @@ const LEVELS = {
       { pokemonId: 25, chance: 2, money: 1200 }, // Pikachu
       { pokemonId: 127, chance: 10, money: 200 }, // Scarabrute
       { pokemonId: 143, chance: 3, money: 750 }, // Ronflex
-      { pokemonId: 123, chance: 3, money: 750}, // Insécateur
+      { pokemonId: 123, chance: 3, money: 750 }, // Insécateur
     ],
   },
   riviere: {
@@ -94,8 +98,9 @@ const LEVELS = {
       { pokemonId: 41, chance: 30, money: 10 }, // Nosferapti
       { pokemonId: 74, chance: 30, money: 10 }, // Racaillou
       { pokemonId: 95, chance: 5, money: 250 }, // Onix
-      { pokemonId: 46, chance: 15, money: 75 }, // Paras
+      { pokemonId: 46, chance: 15, money: 50 }, // Paras
       { pokemonId: 35, chance: 2, money: 350 }, // Melofée
+      { pokemonId: 27, chance: 20, money: 40 }, // Sabelette
     ],
   },
 };
@@ -173,7 +178,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       "transition-all",
       "duration-200",
       "ease-in-out",
-      "gap-2"
+      "gap-2",
+      "pokedex-entry"
     );
     pokeInPokedex.dataset.pokemonId = pokemon.id;
 
@@ -205,11 +211,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     pokeId.textContent = `#${pokemon.id}`;
     pokeId.classList.add("text-xs", "text-gray-500");
 
+    const pokeCount = document.createElement("p");
+    pokeCount.textContent = 0; // Initialise à 0
+    pokeCount.classList.add("text-sm", "font-bold", "text-blue-700");
+    pokeCount.id = `pokedex-count-${pokemon.id}`; // ID unique pour cibler le compteur
+
     pokeInPokedex.appendChild(pokeImg);
     pokeInPokedex.appendChild(pokeName);
     pokeInPokedex.appendChild(pokeId);
+    pokeInPokedex.appendChild(pokeCount); 
 
     pokeList.appendChild(pokeInPokedex);
+
+    capturedPokemonCounts[pokemon.id] = 0;
   });
   console.log(
     "Pokédex initialisé avec tous les Pokémon grisés et noms cachés."
@@ -234,7 +248,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     pokeballNumberElement.innerHTML = pokeballNbr;
   }
 
-function startGame() {
+  function startGame() {
     gameOver = false;
     gameStarted = false; // Important : gameStarted doit être false au début de chaque partie
     revealedSafeCellsCount = 0;
@@ -256,15 +270,15 @@ function startGame() {
     gridElement.style.backgroundPosition = "center";
 
     allCells.forEach((cell) => {
-        cell.style.pointerEvents = "auto";
-        cell.classList.remove("revealed");
-        const existingContent = cell.querySelector("img, span.mine-count");
-        if (existingContent) {
-            existingContent.remove();
-        }
-        // Assurez-vous que l'attribut 'status' est retiré ou non défini au démarrage
-        // pour éviter des problèmes si une cellule était "boom" de la partie précédente
-        cell.removeAttribute("status");
+      cell.style.pointerEvents = "auto";
+      cell.classList.remove("revealed");
+      const existingContent = cell.querySelector("img, span.mine-count");
+      if (existingContent) {
+        existingContent.remove();
+      }
+      // Assurez-vous que l'attribut 'status' est retiré ou non défini au démarrage
+      // pour éviter des problèmes si une cellule était "boom" de la partie précédente
+      cell.removeAttribute("status");
     });
 
     // NOUVEAU : NE PLUS INITIALISER safeCellsToReveal ICI
@@ -275,89 +289,93 @@ function startGame() {
     //     }
     // });
     // console.log("Nouveau jeu démarré. Niveau :", currentLevel.title, "Cellules sûres à révéler :", safeCellsToReveal);
-    console.log("Nouveau jeu démarré. Niveau :", currentLevel.title, "Attente du premier clic pour placer les Voltorbes.");
-}
+    console.log(
+      "Nouveau jeu démarré. Niveau :",
+      currentLevel.title,
+      "Attente du premier clic pour placer les Voltorbes."
+    );
+  }
 
-gridElement.addEventListener("click", (event) => {
+  gridElement.addEventListener("click", (event) => {
     const element = event.target.closest(".cell");
     if (!element || gameOver || element.classList.contains("revealed")) {
-        return;
+      return;
     }
 
     // NOUVEAU : Logique pour le premier clic
     if (!gameStarted) {
-        gameStarted = true;
-        toggleLevelSelectionButtons(false);
-        // Place les mines après le premier clic, en s'assurant que 'element' est sûr
-        placeMines(currentLevel.rows, currentLevel.cols, Number(element.id));
+      gameStarted = true;
+      toggleLevelSelectionButtons(false);
+      // Place les mines après le premier clic, en s'assurant que 'element' est sûr
+      placeMines(currentLevel.rows, currentLevel.cols, Number(element.id));
 
-        // Met à jour 'allCells' après que les attributs status aient été ajoutés par placeMines
-        allCells = document.querySelectorAll(".cell");
+      // Met à jour 'allCells' après que les attributs status aient été ajoutés par placeMines
+      allCells = document.querySelectorAll(".cell");
 
-        // Calcule le nombre de cellules sûres à révéler après que les mines soient placées
-        safeCellsToReveal = 0;
-        allCells.forEach((cell) => {
-            if (cell.getAttribute("status") === "safe") {
-                safeCellsToReveal++;
-            }
-        });
-        console.log("Jeu démarré. Cellules sûres à révéler :", safeCellsToReveal);
+      // Calcule le nombre de cellules sûres à révéler après que les mines soient placées
+      safeCellsToReveal = 0;
+      allCells.forEach((cell) => {
+        if (cell.getAttribute("status") === "safe") {
+          safeCellsToReveal++;
+        }
+      });
+      console.log("Jeu démarré. Cellules sûres à révéler :", safeCellsToReveal);
     }
 
     console.log("Cliqué sur la cellule avec l'ID : " + element.id);
 
     // Le reste de la logique du clic reste inchangé
     if (element.getAttribute("status") === "boom") {
-        element.classList.add("revealed");
+      element.classList.add("revealed");
 
-        const existingContent = element.querySelector("img, span.mine-count");
-        if (existingContent) {
-            existingContent.remove();
-        }
+      const existingContent = element.querySelector("img, span.mine-count");
+      if (existingContent) {
+        existingContent.remove();
+      }
 
-        const cellImg = document.createElement("img");
-        cellImg.src = allPokemonData[99].sprite; // Assurez-vous que l'ID 100 de Voltorbe est bien l'index 99 si allPokemonData est un tableau par index
-        cellImg.classList.add("w-28", "h-28");
-        element.appendChild(cellImg);
+      const cellImg = document.createElement("img");
+      cellImg.src = allPokemonData[99].sprite; // Assurez-vous que l'ID 100 de Voltorbe est bien l'index 99 si allPokemonData est un tableau par index
+      cellImg.classList.add("w-28", "h-28");
+      element.appendChild(cellImg);
 
-        const audio = new Audio(allPokemonData[99].cry);
-        audio.play();
+      const audio = new Audio(allPokemonData[99].cry);
+      audio.play();
 
-        showMessage("BADABOOM ! C'était un Voltorbe !");
-        game_over();
+      showMessage("BADABOOM ! C'était un Voltorbe !");
+      game_over();
     } else {
-        // ... (le reste de votre logique pour une cellule sûre) ...
-        element.classList.add("revealed");
-        revealedSafeCellsCount++;
+      // ... (le reste de votre logique pour une cellule sûre) ...
+      element.classList.add("revealed");
+      revealedSafeCellsCount++;
 
-        const neighborsForClickedCellCount = checkNearCells(
-            element,
-            currentLevel.cols
-        );
-        let clickedCellBoomCount = 0;
-        neighborsForClickedCellCount.forEach((neighbor) => {
-            if (neighbor.getAttribute("status") === "boom") {
-                clickedCellBoomCount++;
-            }
-        });
-
-        updateCellContent(element);
-
-        if (clickedCellBoomCount === 0) {
-            updateBallNumber();
+      const neighborsForClickedCellCount = checkNearCells(
+        element,
+        currentLevel.cols
+      );
+      let clickedCellBoomCount = 0;
+      neighborsForClickedCellCount.forEach((neighbor) => {
+        if (neighbor.getAttribute("status") === "boom") {
+          clickedCellBoomCount++;
         }
+      });
 
-        const clickedCellNeighbors = checkNearCells(element, currentLevel.cols);
+      updateCellContent(element);
 
-        clickedCellNeighbors.forEach((neighbor) => {
-            if (!neighbor.classList.contains("revealed")) {
-                updateCellContent(neighbor);
-            }
-        });
+      if (clickedCellBoomCount === 0) {
+        updateBallNumber();
+      }
 
-        checkWinCondition();
+      const clickedCellNeighbors = checkNearCells(element, currentLevel.cols);
+
+      clickedCellNeighbors.forEach((neighbor) => {
+        if (!neighbor.classList.contains("revealed")) {
+          updateCellContent(neighbor);
+        }
+      });
+
+      checkWinCondition();
     }
-});
+  });
 
   function createGrid(rows, cols) {
     gridElement.innerHTML = "";
@@ -439,80 +457,78 @@ gridElement.addEventListener("click", (event) => {
     gridElement.style.gridTemplateRows = `repeat(${rows}, 60px)`;
 
     grid = Array(rows) // Initialisez la grille logique
-        .fill(null)
-        .map(() =>
-            Array(cols).fill({
-                isMine: false,
-                isRevealed: false,
-                isFlagged: false,
-                minesAround: 0,
-            })
-        );
+      .fill(null)
+      .map(() =>
+        Array(cols).fill({
+          isMine: false,
+          isRevealed: false,
+          isFlagged: false,
+          minesAround: 0,
+        })
+      );
 
     // Crée les éléments DOM des cellules sans définir leur statut "boom" ou "safe"
     let i = 0;
     for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-            const cell = document.createElement("div");
-            cell.classList.add("cell");
-            cell.dataset.row = r;
-            cell.dataset.col = c;
-            cell.id = i;
-            // Ne pas définir le statut ici
-            gridElement.appendChild(cell);
-            i++;
-        }
+      for (let c = 0; c < cols; c++) {
+        const cell = document.createElement("div");
+        cell.classList.add("cell");
+        cell.dataset.row = r;
+        cell.dataset.col = c;
+        cell.id = i;
+        // Ne pas définir le statut ici
+        gridElement.appendChild(cell);
+        i++;
+      }
     }
-}
+  }
 
   function placeMines(rows, cols, clickedCellId) {
     const totalCells = rows * cols;
     const minesToPlace =
-        Math.floor(
-            Math.random() * (currentLevel.maxMines - currentLevel.minMines + 1)
-        ) + currentLevel.minMines;
+      Math.floor(
+        Math.random() * (currentLevel.maxMines - currentLevel.minMines + 1)
+      ) + currentLevel.minMines;
     const minePositions = new Set();
 
     // S'assure que la cellule cliquée (clickedCellId) n'est jamais une mine
     const forbiddenPositions = new Set();
     if (clickedCellId !== undefined && clickedCellId !== null) {
-        forbiddenPositions.add(clickedCellId);
-        // Optionnel : Vous pouvez aussi interdire les 8 cellules autour du premier clic
-        // pour une expérience encore plus douce.
-        // let clickedRow = Math.floor(clickedCellId / cols);
-        // let clickedCol = clickedCellId % cols;
-        // for (let rOffset = -1; rOffset <= 1; rOffset++) {
-        //     for (let cOffset = -1; cOffset <= 1; cOffset++) {
-        //         let neighborRow = clickedRow + rOffset;
-        //         let neighborCol = clickedCol + cOffset;
-        //         if (neighborRow >= 0 && neighborRow < rows && neighborCol >= 0 && neighborCol < cols) {
-        //             forbiddenPositions.add(neighborRow * cols + neighborCol);
-        //         }
-        //     }
-        // }
+      forbiddenPositions.add(clickedCellId);
+      // Optionnel : Vous pouvez aussi interdire les 8 cellules autour du premier clic
+      // pour une expérience encore plus douce.
+      // let clickedRow = Math.floor(clickedCellId / cols);
+      // let clickedCol = clickedCellId % cols;
+      // for (let rOffset = -1; rOffset <= 1; rOffset++) {
+      //     for (let cOffset = -1; cOffset <= 1; cOffset++) {
+      //         let neighborRow = clickedRow + rOffset;
+      //         let neighborCol = clickedCol + cOffset;
+      //         if (neighborRow >= 0 && neighborRow < rows && neighborCol >= 0 && neighborCol < cols) {
+      //             forbiddenPositions.add(neighborRow * cols + neighborCol);
+      //         }
+      //     }
+      // }
     }
-
 
     // Sélectionne aléatoirement les positions des mines, en évitant les positions interdites
     while (minePositions.size < minesToPlace) {
-        let randomPos = Math.floor(Math.random() * totalCells);
-        if (!forbiddenPositions.has(randomPos)) {
-            minePositions.add(randomPos);
-        }
+      let randomPos = Math.floor(Math.random() * totalCells);
+      if (!forbiddenPositions.has(randomPos)) {
+        minePositions.add(randomPos);
+      }
     }
 
     // Parcourt toutes les cellules et assigne le statut "boom" ou "safe"
     for (let i = 0; i < totalCells; i++) {
-        const cell = document.getElementById(i); // Récupère la cellule par son ID
-        if (minePositions.has(i)) {
-            cell.setAttribute("status", "boom");
-        } else {
-            cell.setAttribute("status", "safe");
-        }
+      const cell = document.getElementById(i); // Récupère la cellule par son ID
+      if (minePositions.has(i)) {
+        cell.setAttribute("status", "boom");
+      } else {
+        cell.setAttribute("status", "safe");
+      }
     }
     console.log(`Nombre de Voltorbes placés pour ce niveau: ${minesToPlace}`);
-}
-
+  }
 
   function checkNearCells(cell, gridWidth) {
     const surroundingCells = [];
@@ -647,6 +663,21 @@ gridElement.addEventListener("click", (event) => {
         const encounteredPokemon = choosePokemon(currentLevel.encounterTable);
 
         if (encounteredPokemon) {
+          capturedPokemonCounts[encounteredPokemon.id]++;
+          const pokedexCount = document.getElementById(
+            `pokedex-count-${encounteredPokemon.id}`
+          );
+          if (pokedexCount) {
+            pokedexCount.textContent = ` ${
+              capturedPokemonCounts[encounteredPokemon.id]
+            }`;
+            // Optionnel : Ajouter une animation pour le compteur qui se met à jour
+            pokedexCount.classList.add("animate-pulse", "text-green-600");
+            setTimeout(() => {
+              pokedexCount.classList.remove("animate-pulse", "text-green-600");
+            }, 500);
+          }
+
           // NOUVEAU : Récupère l'argent du Pokémon
           const pokemonMoney = encounteredPokemon.money || 0; // Utilise 0 si 'money' n'est pas défini
           console.log(
@@ -813,8 +844,8 @@ gridElement.addEventListener("click", (event) => {
   }
 
   function showDefeatModal() {
-    const modal = document.createElement('div');
-    modal.classList.add('defeat-modal'); // Classe CSS pour la modale de défaite
+    const modal = document.createElement("div");
+    modal.classList.add("defeat-modal"); // Classe CSS pour la modale de défaite
     modal.innerHTML = `
         <div class="defeat-modal-content">
             <h3>Oh non... C'était un Voltorbe !</h3>
@@ -823,13 +854,13 @@ gridElement.addEventListener("click", (event) => {
     `;
     document.body.appendChild(modal);
 
-    modal.style.display = 'flex'; // Rendre la modale visible
+    modal.style.display = "flex"; // Rendre la modale visible
 
     // Ferme la modale et relance le jeu après un court délai
     setTimeout(() => {
-        modal.remove(); // Supprime la modale du DOM
-        currentLevel = LEVELS["hautes-herbes"]; // Définit le niveau par défaut
-        startGame(); // Redémarre une nouvelle partie avec le niveau Hautes-herbes
+      modal.remove(); // Supprime la modale du DOM
+      currentLevel = LEVELS["hautes-herbes"]; // Définit le niveau par défaut
+      startGame(); // Redémarre une nouvelle partie avec le niveau Hautes-herbes
     }, 2500); // La modale reste visible pendant 2.5 secondes
-}
+  }
 });
