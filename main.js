@@ -21,8 +21,8 @@ const LEVELS = {
     title: "Hautes-herbes",
     rows: 5,
     cols: 5,
-    minMines: 0, // Minimum de Voltorbes
-    maxMines: 0, // Maximum de Voltorbes
+    minMines: 2, // Minimum de Voltorbes
+    maxMines: 5, // Maximum de Voltorbes
     backgroundImage: "./img/grass.jpg",
     cost: 0,
     encounterTable: [
@@ -30,20 +30,39 @@ const LEVELS = {
       { pokemonId: 16, chance: 30, money: 20 }, // Roucool
       { pokemonId: 19, chance: 30, money: 20 }, // Ratata
     ],
+  },  "route de jadielle": {
+    id: "route-de-jadielle",
+    title: "Route de Jadielle",
+    rows: 5,
+    cols: 5,
+    minMines: 3, // Minimum de Voltorbes
+    maxMines: 6, // Maximum de Voltorbes
+    backgroundImage: "./img/grass.jpg",
+    cost: 350,
+    encounterTable: [
+      { pokemonId: 1, chance: 1, money: 2500 }, // Bulbizarre
+      { pokemonId: 16, chance: 25, money: 20 }, // Roucool
+      { pokemonId: 19, chance: 25, money: 20 }, // Ratata
+      { pokemonId: 52, chance: 10, money: 40 }, // Miaouss
+      { pokemonId: 56, chance: 5, money: 100 }, // Férosinge
+    ],
   },
   foret: {
     id: "foret",
     title: "Fôret",
     rows: 7,
     cols: 7,
-    minMines: 5,
-    maxMines: 10,
+    minMines: 4,
+    maxMines: 8,
     backgroundImage: "./img/forest.jpg",
     cost: 500,
     encounterTable: [
-      { pokemonId: 10, chance: 35 }, // Chenipan
-      { pokemonId: 13, chance: 30 }, // Aspicot
-      { pokemonId: 25, chance: 25 }, // Pikachu
+      { pokemonId: 10, chance: 35, money: 15 }, // Chenipan
+      { pokemonId: 13, chance: 30, money: 15 }, // Aspicot
+      { pokemonId: 25, chance: 2, money: 1500 }, // Pikachu
+      { pokemonId: 127, chance: 10, money: 300 }, // Scarabrute
+      { pokemonId: 127, chance: 3, money: 1000 }, // Ronflex
+      { pokemonId: 123, chance: 3, money: 1000 }, // Insécateur
     ],
   },
   riviere: {
@@ -56,8 +75,10 @@ const LEVELS = {
     backgroundImage: "./img/riviere.jpg",
     cost: 1000,
     encounterTable: [
-      { pokemonId: 7, chance: 40 }, // Carapuce
-      { pokemonId: 54, chance: 10 }, // Psykokwak
+      { pokemonId: 7, chance: 1, money: 2500 }, // Carapuce
+      { pokemonId: 54, chance: 2, money: 2000 }, // Psykokwak
+      { pokemonId: 60, chance: 10, money: 100 }, // Ptitard
+      { pokemonId: 129, chance: 35, money: 10 }, // Magicarpe
     ],
   },
   caverne: {
@@ -70,9 +91,11 @@ const LEVELS = {
     backgroundImage: "./img/cavern.jpg",
     cost: 1500,
     encounterTable: [
-      { pokemonId: 41, chance: 30 }, // Nosferapti
-      { pokemonId: 74, chance: 30 }, // Racaillou
-      { pokemonId: 95, chance: 25 }, // Onix
+      { pokemonId: 41, chance: 30, money: 20 }, // Nosferapti
+      { pokemonId: 74, chance: 30, money: 35 }, // Racaillou
+      { pokemonId: 95, chance: 5, money: 350 }, // Onix
+      { pokemonId: 46, chance: 15, money: 75 }, // Paras
+      { pokemonId: 35, chance: 2, money: 500 }, // Melofée
     ],
   },
 };
