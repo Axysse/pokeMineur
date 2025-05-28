@@ -139,7 +139,7 @@ const LEVELS = {
     cols: 8,
     minMines: 9,
     maxMines: 16,
-    backgroundImage: "./img/cavern.jpg",
+    backgroundImage: "./img/plage.jpg",
     cost: 1500,
     encounterTable: [
         { pokemonId: 129, chance: 35, money: 10 }, // Magicarpe
