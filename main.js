@@ -27,8 +27,8 @@ const LEVELS = {
     title: "Hautes-herbes",
     rows: 5,
     cols: 5,
-    minMines: 0, // Minimum de Voltorbes
-    maxMines: 0, // Maximum de Voltorbes
+    minMines: 2, // Minimum de Voltorbes
+    maxMines: 3, // Maximum de Voltorbes
     backgroundImage: "./img/grass.jpg",
     cost: 0,
     encounterTable: [
@@ -680,7 +680,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             }, 500);
           }
 
-          // NOUVEAU : Récupère l'argent du Pokémon
           const pokemonMoney = encounteredPokemon.money || 0; // Utilise 0 si 'money' n'est pas défini
           console.log(
             `Pokémon trouvé : ${encounteredPokemon.name} (ID: ${encounteredPokemon.id}, Argent: ${pokemonMoney})`
@@ -763,7 +762,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 console.log("Found evolvedPokemon:", evolvedPokemon);
                 // On retarde l'évolution un peu pour que la modal de capture ait le temps de se fermer
                 setTimeout(() => {
-                  showEvolutionModal(encounteredPokemon, evolvedPokemon);
+                  showEvolutionModal(encounteredPokemon, evolvedPokemon, evolutionRule);
                 }, 2500); // Délai après la fin de la révélation des captures
               } else {
                 console.warn(
@@ -920,10 +919,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // main.js - Nouvelle fonction pour la modale d'évolution
-  function showEvolutionModal(basePokemon, evolvedPokemon) {
-    console.log("showEvolutionModal called. basePokemon:", basePokemon, "evolvedPokemon:", evolvedPokemon);
+  function showEvolutionModal(basePokemon, evolvedPokemon, evolutionRule) {
+    console.log(
+      "showEvolutionModal called. basePokemon:",
+      basePokemon,
+      "evolvedPokemon:",
+      evolvedPokemon
+    );
     const modal = document.createElement("div");
     modal.classList.add("evolution-modal");
+
+    const moneyBonus = evolutionRule.moneyBonus || 0;
+
     modal.innerHTML = `
         <div class="evolution-modal-content">
             <h3>Félicitations !</h3>
@@ -934,6 +941,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <img src="./img/evolution-icon.png" alt="Évolution" class="w-16 h-16 animate-pulse" id="evolution-icon">
                 <img src="${evolvedPokemon.sprite}" alt="${evolvedPokemon.name}" class="w-24 h-24 mt-4 opacity-0" id="evolved-pokemon-sprite">
                 <p class="text-2xl font-bold capitalize mt-2 opacity-0 text-purple-700" id="evolved-pokemon-name">${evolvedPokemon.name} !</p>
+                ${moneyBonus > 0 ? `<p class="text-lg font-bold text-green-500 mt-4">Vous gagnez +${moneyBonus} ₽ !</p>` : ''}
             </div>
             <button id="close-evolution-modal" class="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 mt-6">Impressionnant !</button>
         </div>
@@ -960,7 +968,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       evolutionAudio.play();
 
       // NOUVEAU : Révèle l'évolution dans le Pokédex
-      updatePokedexAfterEvolution(evolvedPokemon);
+      updatePokedexAfterEvolution(basePokemon, evolvedPokemon);
     }, 1500); // Délai après l'affichage initial de la modal
 
     document
@@ -970,49 +978,71 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
   }
 
-  function updatePokedexAfterEvolution(evolvedPokemon) {
+  function updatePokedexAfterEvolution(basePokemon, evolvedPokemon) {
     console.log("updatePokedexAfterEvolution called for:", evolvedPokemon.name);
 
     // Assure que le compteur pour le Pokémon évolué est au moins 1 lors de sa première évolution.
     if (capturedPokemonCounts[evolvedPokemon.id] === 0) {
-        capturedPokemonCounts[evolvedPokemon.id] = 1;
+      capturedPokemonCounts[evolvedPokemon.id] = 1;
     } else {
-        capturedPokemonCounts[evolvedPokemon.id]++;
+      capturedPokemonCounts[evolvedPokemon.id]++;
+    }
+
+    const evolutionRule = EVOLUTIONS[basePokemon.id]; // On cherche la règle d'évolution du Pokémon de base
+    if (evolutionRule && evolutionRule.moneyBonus) {
+      playerMoney += evolutionRule.moneyBonus; // Ajoute l'argent au joueur
+      playerMoneyElement.textContent = playerMoney; // Met à jour l'affichage de l'argent global
+      console.log(
+        `Bonus d'évolution ! Vous avez gagné ${evolutionRule.moneyBonus} PokéDollars pour l'évolution de ${basePokemon.name} en ${evolvedPokemon.name}. Total: ${playerMoney}`
+      );
+
+      // Optionnel: Afficher un message temporaire pour le bonus d'argent
+      showMessage(
+        `+${evolutionRule.moneyBonus} ₽ (Évolution de ${basePokemon.name})`
+      );
     }
 
     // Récupère les éléments du Pokédex pour le Pokémon évolué
-    const pokedexImg = document.getElementById(`pokedex-sprite-${evolvedPokemon.id}`);
-    const pokedexName = document.getElementById(`pokedex-name-${evolvedPokemon.id}`);
-    const pokedexCount = document.getElementById(`pokedex-count-${evolvedPokemon.id}`);
+    const pokedexImg = document.getElementById(
+      `pokedex-sprite-${evolvedPokemon.id}`
+    );
+    const pokedexName = document.getElementById(
+      `pokedex-name-${evolvedPokemon.id}`
+    );
+    const pokedexCount = document.getElementById(
+      `pokedex-count-${evolvedPokemon.id}`
+    );
 
     if (pokedexImg && pokedexName) {
-        // Supprime le filtre de gris et affiche le nom si c'est la première fois qu'on voit cette évolution
-        if (!capturedPokemonIds.has(evolvedPokemon.id)) {
-            pokedexImg.classList.remove("grayscale");
-            pokedexName.textContent = evolvedPokemon.name;
-            capturedPokemonIds.add(evolvedPokemon.id); // Marque comme "révélé"
-            console.log(`Nouvelle évolution révélée dans le Pokédex : ${evolvedPokemon.name}`);
-        } else {
-            console.log(`${evolvedPokemon.name} (évolution) déjà révélé.`);
-        }
+      // Supprime le filtre de gris et affiche le nom si c'est la première fois qu'on voit cette évolution
+      if (!capturedPokemonIds.has(evolvedPokemon.id)) {
+        pokedexImg.classList.remove("grayscale");
+        pokedexName.textContent = evolvedPokemon.name;
+        capturedPokemonIds.add(evolvedPokemon.id); // Marque comme "révélé"
+        console.log(
+          `Nouvelle évolution révélée dans le Pokédex : ${evolvedPokemon.name}`
+        );
+      } else {
+        console.log(`${evolvedPokemon.name} (évolution) déjà révélé.`);
+      }
 
-        // Applique une animation de bordure au Pokédex
-        pokedexImg.parentElement.classList.add("scale-110", "border-purple-400");
-        setTimeout(() => {
-            pokedexImg.parentElement.classList.remove(
-                "scale-110",
-                "border-purple-400"
-            );
-        }, 500);
+      // Applique une animation de bordure au Pokédex
+      pokedexImg.parentElement.classList.add("scale-110", "border-purple-400");
+      setTimeout(() => {
+        pokedexImg.parentElement.classList.remove(
+          "scale-110",
+          "border-purple-400"
+        );
+      }, 500);
     }
 
     // Met à jour l'affichage du compteur du Pokédex
     if (pokedexCount) {
-        pokedexCount.textContent = `${capturedPokemonCounts[evolvedPokemon.id]}`;
-        pokedexCount.classList.add("animate-pulse", "text-purple-600");
-        setTimeout(() => {
-            pokedexCount.classList.remove("animate-pulse", "text-purple-600");
-        }, 500);
+      pokedexCount.textContent = `${capturedPokemonCounts[evolvedPokemon.id]}`;
+      pokedexCount.classList.add("animate-pulse", "text-purple-600");
+      setTimeout(() => {
+        pokedexCount.classList.remove("animate-pulse", "text-purple-600");
+      }, 500);
     }
-}
+  }
 });
