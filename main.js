@@ -16,9 +16,29 @@ let playerMoney = 0; // NOUVEAU : Variable pour l'argent du joueur
 let playerMoneyElement; // NOUVEAU : Élément DOM pour afficher l'argent
 
 const EVOLUTIONS = {
-  19: { evolvesTo: 20, threshold: 50, moneyBonus: 50 }, // Rattata (19) évolue en Rattatac (20) après 50 captures
-  16: { evolvesTo: 17, threshold: 50, moneyBonus: 50 }, // Roucool (16) évolue en Roucoups (17) après 50 captures
-  17: { evolvesTo: 18, threshold: 60, moneyBonus: 150 }, // Roucoups (17) évolue en Roucarnage (18) après 70 captures
+  19: { evolvesTo: 20, threshold: 40, moneyBonus: 70 }, // Rattata (19) évolue en Rattatac (20) après 50 captures
+  16: { evolvesTo: 17, threshold: 40, moneyBonus: 70 }, // Roucool (16) évolue en Roucoups (17) après 50 captures
+  17: { evolvesTo: 18, threshold: 30, moneyBonus: 150 }, // Roucoups (17) évolue en Roucarnage (18) après 70 captures
+  52: { evolvesTo: 53, threshold: 50, moneyBonus: 120 }, // Miaouss évolue en Persian après 50 captures
+  129: { evolvesTo: 130, threshold: 70, moneyBonus: 350 }, // Magicarpe évolue en Léviathor après 50 captures
+  56: { evolvesTo: 59, threshold: 40, moneyBonus: 200 }, // Férosinge évolue en Colossinge après 50 captures
+  25: { evolvesTo: 26, threshold: 40, moneyBonus: 350 }, // Pikachu évolue en Raichu après 50 captures
+  21: { evolvesTo: 22, threshold: 40, moneyBonus: 80 }, // Piafabec évolue en Rapasdepic après 50 captures
+  10: { evolvesTo: 11, threshold: 40, moneyBonus: 70 }, // Chenipan évolue en Crysacier après 50 captures
+  11: { evolvesTo: 12, threshold: 40, moneyBonus: 50 }, // Crysacier évolue en Papillusion après 50 captures
+  13: { evolvesTo: 14, threshold: 30, moneyBonus: 80 }, // Aspicot évolue en Coconfort après 50 captures
+  14: { evolvesTo: 15, threshold: 30, moneyBonus: 150 }, // Cocnfort évolue en Dardagnan après 50 captures
+  29: { evolvesTo: 30, threshold: 40, moneyBonus: 80 }, // nidoran femelle évolue en Nidorina après 50 captures
+  30: { evolvesTo: 31, threshold: 30, moneyBonus: 170 }, // nidorana femelle évolue en Nidoqueen après 50 captures
+  32: { evolvesTo: 33, threshold: 40, moneyBonus: 80 }, // nidoran male évolue en Nidorino après 50 captures
+  33: { evolvesTo: 34, threshold: 30, moneyBonus: 170 }, // nidorino évolue en Nidoking après 50 captures
+  35: { evolvesTo: 36, threshold: 30, moneyBonus: 250 }, // melofée évolue en Melodelfe après 50 captures
+  41: { evolvesTo: 42, threshold: 50, moneyBonus: 60 }, // melofée évolue en Melodelfe après 50 captures
+  46: { evolvesTo: 47, threshold: 40, moneyBonus: 120 }, // melofée évolue en Melodelfe après 50 captures
+  60: { evolvesTo: 61, threshold: 40, moneyBonus: 110 }, // Ptitard évolue en Tetarte après 50 captures
+  61: { evolvesTo: 62, threshold: 30, moneyBonus: 350 }, // tetarte évolue en Tartard après 50 captures
+  74: { evolvesTo: 75, threshold: 40, moneyBonus: 150 }, // racaillou évolue en Gravalanch après 50 captures
+  75: { evolvesTo: 76, threshold: 30, moneyBonus: 350 }, // Gravalanch évolue en Grolem après 50 captures
 };
 
 const LEVELS = {
