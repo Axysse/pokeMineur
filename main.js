@@ -30,7 +30,8 @@ const LEVELS = {
       { pokemonId: 16, chance: 30, money: 20 }, // Roucool
       { pokemonId: 19, chance: 30, money: 20 }, // Ratata
     ],
-  },  "route de jadielle": {
+  },  
+  route_de_jadielle: {
     id: "route-de-jadielle",
     title: "Route de Jadielle",
     rows: 5,
