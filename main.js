@@ -11,6 +11,8 @@ let pokeballNbr = 0;
 let allCells;
 let pokeList;
 let capturedPokemonIds = new Set();
+let playerMoney = 0; // NOUVEAU : Variable pour l'argent du joueur
+let playerMoneyElement; // NOUVEAU : Élément DOM pour afficher l'argent
 
 // MODIFIÉ : Ajout de minMines et maxMines
 const LEVELS = {
@@ -23,9 +25,9 @@ const LEVELS = {
     maxMines: 0, // Maximum de Voltorbes
     backgroundImage: "./img/grass.jpg",
     encounterTable: [
-      { pokemonId: 1, chance: 1 }, // Bulbizarre
-      { pokemonId: 16, chance: 30 }, // Roucool
-      { pokemonId: 19, chance: 30 }, // Ratata
+      { pokemonId: 1, chance: 1, money: 2500 }, // Bulbizarre
+      { pokemonId: 16, chance: 30, money: 20 }, // Roucool
+      { pokemonId: 19, chance: 30, money: 20 }, // Ratata
     ],
   },
   foret: {
@@ -82,6 +84,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const titre = document.getElementById("titre");
   const replayButton = document.getElementById("replay");
   pokeballNumberElement = document.getElementById("pokeballNumber");
+  playerMoneyElement = document.getElementById("playerMoney"); // NOUVEAU
   let completeNbr = 0
   const complete = document.getElementById("complete")
 
@@ -109,6 +112,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
       currentLevel = level;
+      playerMoneyElement.textContent = playerMoney;
       startGame();
     });
     levelSelectionDiv.appendChild(button);
@@ -505,27 +509,28 @@ document.addEventListener("DOMContentLoaded", async () => {
 function openBalls(pokeballsToOpen) {
     console.log(`openBalls() appelée. Pokéballs à ouvrir : ${pokeballsToOpen}`);
 
-    // Crée la modal de révélation des Pokéballs
     const modal = document.createElement('div');
-    modal.classList.add('pokeball-modal'); // Classe CSS pour styliser la modal
+    modal.classList.add('pokeball-modal');
     modal.innerHTML = `
         <div class="pokeball-modal-content">
             <h2>Vous avez attrapé <span id="pokeball-count-display">${pokeballsToOpen}</span> Pokéball(s) !</h2>
             <div id="pokemon-reveal-area" class="flex flex-wrap justify-center gap-4 mt-4"></div>
+            <div class="mt-4 text-xl font-bold">Total gagné : <span id="current-reveal-money">0</span> PokéDollars</div>
         </div>
     `;
     document.body.appendChild(modal);
 
-    // Affiche la modal (petit délai pour l'animation)
     setTimeout(() => {
-        modal.style.display = 'flex'; // Rendre la modal visible
+        modal.style.display = 'flex';
         console.log("Modal affichée.");
     }, 100);
 
     const pokemonRevealArea = document.getElementById('pokemon-reveal-area');
+    const currentRevealMoneyElement = document.getElementById('current-reveal-money'); // NOUVEAU : pour l'affichage dans la modal
+    let currentRevealTotalMoney = 0; // NOUVEAU : pour la somme cumulée pendant la révélation
+
     let openedCount = 0;
 
-    // Définition de la fonction de révélation récursive
     const revealNextPokemon = () => {
         if (openedCount < pokeballsToOpen) {
             console.log(`Révélation du Pokémon ${openedCount + 1} sur ${pokeballsToOpen}...`);
@@ -533,18 +538,28 @@ function openBalls(pokeballsToOpen) {
             const encounteredPokemon = choosePokemon(currentLevel.encounterTable);
 
             if (encounteredPokemon) {
-                console.log(`Pokémon trouvé : ${encounteredPokemon.name} (ID: ${encounteredPokemon.id})`);
+                // NOUVEAU : Récupère l'argent du Pokémon
+                const pokemonMoney = encounteredPokemon.money || 0; // Utilise 0 si 'money' n'est pas défini
+                console.log(`Pokémon trouvé : ${encounteredPokemon.name} (ID: ${encounteredPokemon.id}, Argent: ${pokemonMoney})`);
 
                 const pokemonDiv = document.createElement('div');
                 pokemonDiv.classList.add('revealed-pokemon-item', 'flex', 'flex-col', 'items-center');
                 pokemonDiv.innerHTML = `
                     <img src="${encounteredPokemon.sprite}" alt="${encounteredPokemon.name}" class="w-24 h-24">
                     <p class="capitalize">${encounteredPokemon.name}</p>
-                `;
+                    <p class="text-sm text-yellow-600">+ ${pokemonMoney} ₽</p> `;
                 pokemonRevealArea.appendChild(pokemonDiv);
 
                 const audio = new Audio(encounteredPokemon.cry);
                 audio.play();
+
+                // NOUVEAU : Met à jour l'argent cumulé pendant la révélation
+                currentRevealTotalMoney += pokemonMoney;
+                currentRevealMoneyElement.textContent = currentRevealTotalMoney;
+
+                // NOUVEAU : Met à jour l'argent global du joueur
+                playerMoney += pokemonMoney;
+                playerMoneyElement.textContent = playerMoney; // Met à jour l'affichage global de l'argent
 
                 if (!capturedPokemonIds.has(encounteredPokemon.id)) {
                     capturedPokemonIds.add(encounteredPokemon.id);
@@ -563,8 +578,6 @@ function openBalls(pokeballsToOpen) {
                         pokedexName.textContent = encounteredPokemon.name;
                     }
                     console.log(`Nouveau Pokémon capturé et mis à jour dans le Pokédex : ${encounteredPokemon.name}`);
-                    completeNbr ++;
-                    complete.innerHTML = completeNbr
                 } else {
                     console.log(`${encounteredPokemon.name} déjà capturé.`);
                 }
@@ -573,21 +586,18 @@ function openBalls(pokeballsToOpen) {
             }
 
             openedCount++;
-            // Délai entre chaque révélation de Pokémon
             setTimeout(revealNextPokemon, 800);
         } else {
             console.log("Toutes les Pokéballs ont été ouvertes. Fermeture de la modal dans 2 secondes.");
-            // Tous les Pokémon ont été révélés, laisser la modal visible un instant puis la fermer
             setTimeout(() => {
                 modal.remove();
-                pokeballNbr = 0; // Réinitialise le compteur de Pokéballs pour la prochaine partie
-                pokeballNumberElement.innerHTML = pokeballNbr; // Met à jour l'affichage
+                pokeballNbr = 0;
+                pokeballNumberElement.innerHTML = pokeballNbr;
                 console.log("Modal fermée. Compteur de Pokéballs réinitialisé.");
             }, 2000);
         }
     };
 
-    // Démarrer la révélation des Pokémon après le message initial (3 secondes)
     if (pokeballsToOpen > 0) {
         setTimeout(() => {
             console.log("Démarrage de la séquence de révélation des Pokémon...");
@@ -611,17 +621,24 @@ function openBalls(pokeballsToOpen) {
    */
   function choosePokemon(encounterTable) {
     const totalChance = encounterTable.reduce(
-      (sum, entry) => sum + entry.chance,
-      0
+        (sum, entry) => sum + entry.chance,
+        0
     );
     let randomPoint = Math.random() * totalChance;
 
     for (const entry of encounterTable) {
-      if (randomPoint < entry.chance) {
-        return allPokemonData.find(p => p.id === entry.pokemonId);
-      }
-      randomPoint -= entry.chance;
+        if (randomPoint < entry.chance) {
+            const foundPokemon = allPokemonData.find(p => p.id === entry.pokemonId);
+            if (!foundPokemon) {
+                console.error(`Erreur: Pokémon avec ID ${entry.pokemonId} non trouvé dans allPokemonData. Vérifiez fetch.js et LEVELS.`);
+                return null;
+            }
+            // NOUVEAU : Ajoutez la propriété 'money' à l'objet Pokémon trouvé
+            return { ...foundPokemon, money: entry.money || 0 }; // Crée une copie et ajoute 'money'
+        }
+        randomPoint -= entry.chance;
     }
-    return null; // En cas d'erreur ou si totalChance n'est pas 100
-  }
+    console.warn("choosePokemon a terminé sans trouver de Pokémon (randomPoint a dépassé toutes les chances).");
+    return null;
+}
 });
