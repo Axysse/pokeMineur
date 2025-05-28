@@ -153,9 +153,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           startGame();
         });
       } else {
-        showMessage(
-          `Vous n'avez pas assez de PokéDollars pour ce niveau. Il vous faut ${level.cost} ₽.`
-        );
+        showAccessDeniedModal(level.cost)
       }
       // --- FIN NOUVEAU ---
     });
@@ -863,4 +861,25 @@ document.addEventListener("DOMContentLoaded", async () => {
       startGame(); // Redémarre une nouvelle partie avec le niveau Hautes-herbes
     }, 2500); // La modale reste visible pendant 2.5 secondes
   }
+
+  function showAccessDeniedModal(requiredMoney) {
+    const modal = document.createElement('div');
+    modal.classList.add('access-denied-modal'); // Classe CSS pour la modale de refus
+    modal.innerHTML = `
+        <div class="access-denied-modal-content">
+            <h3>Accès Refusé !</h3>
+            <p>Vous n'avez pas assez de PokéDollars pour accéder à cette zone.</p>
+            <p>Il vous faut au moins <span class="text-red-600 font-bold">${requiredMoney} ₽</span> pour y entrer.</p>
+            <button id="close-access-denied-modal" class="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 mt-4">Compris</button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    modal.style.display = 'flex'; // Rendre la modale visible
+
+    // Ferme la modale lorsque le bouton est cliqué
+    document.getElementById('close-access-denied-modal').addEventListener('click', () => {
+        modal.remove(); // Supprime la modale du DOM
+    });
+}
 });
