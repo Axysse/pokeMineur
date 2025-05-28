@@ -513,7 +513,7 @@ function openBalls(pokeballsToOpen) {
     modal.classList.add('pokeball-modal');
     modal.innerHTML = `
         <div class="pokeball-modal-content">
-            <h2>Vous avez attrapé <span id="pokeball-count-display">${pokeballsToOpen}</span> Pokéball(s) !</h2>
+            <h2>Vous avez attrapé <span id="pokeball-count-display">${pokeballsToOpen}</span> Pokémons) !</h2>
             <div id="pokemon-reveal-area" class="flex flex-wrap justify-center gap-4 mt-4"></div>
             <div class="mt-4 text-xl font-bold">Total gagné : <span id="current-reveal-money">0</span> PokéDollars</div>
         </div>
