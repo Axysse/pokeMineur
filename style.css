@@ -177,3 +177,93 @@ body {
     80% { transform: scale(1.1); opacity: 1; }
     100% { transform: scale(1); opacity: 1; }
 }
+
+/* style.css ou dans votre CSS personnalisé */
+
+.confirmation-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Assurez-vous qu'elle est au-dessus des autres éléments */
+}
+
+.confirmation-modal-content {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    color: #333; /* Couleur du texte */
+}
+
+.confirmation-modal-content h3 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    color: #1a202c; /* Couleur du titre */
+}
+
+.confirmation-modal-content p {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+}
+
+
+
+.defeat-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); /* Fond plus sombre pour l'impact */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1001; /* Assurez-vous qu'elle est au-dessus des autres modales si elles existent */
+    animation: fadeIn 0.3s ease-out; /* Petite animation d'apparition */
+}
+
+.defeat-modal-content {
+    background-color: #fefefe; /* Un blanc un peu moins éclatant */
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    text-align: center;
+    max-width: 450px;
+    width: 90%;
+    color: #333;
+    animation: slideIn 0.4s ease-out; /* Petite animation de slide-in */
+    border: 3px solid #ff4444; /* Bordure rouge pour la défaite */
+}
+
+.defeat-modal-content h3 {
+    font-size: 2rem; /* Plus grand pour le titre de défaite */
+    color: #d32f2f; /* Rouge vif pour le titre */
+    margin-bottom: 15px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.defeat-modal-content p {
+    font-size: 1.2rem;
+    color: #555;
+    margin-bottom: 0;
+}
+
+/* Animations CSS (facultatif mais recommandé pour un bel effet) */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
