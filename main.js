@@ -21,8 +21,8 @@ let gridElement;
 
 const EVOLUTIONS = {
   19: { evolvesTo: 20, threshold: 40, moneyBonus: 70 }, // Rattata (19) évolue en Rattatac (20) après 50 captures
-  16: { evolvesTo: 17, threshold: 10, moneyBonus: 70 }, // Roucool (16) évolue en Roucoups (17) après 50 captures
-  17: { evolvesTo: 18, threshold: 2, moneyBonus: 150 }, // Roucoups (17) évolue en Roucarnage (18) après 70 captures
+  16: { evolvesTo: 17, threshold: 30, moneyBonus: 70 }, // Roucool (16) évolue en Roucoups (17) après 50 captures
+  17: { evolvesTo: 18, threshold: 3, moneyBonus: 150 }, // Roucoups (17) évolue en Roucarnage (18) après 70 captures
   52: { evolvesTo: 53, threshold: 50, moneyBonus: 120 }, // Miaouss évolue en Persian après 50 captures
   129: { evolvesTo: 130, threshold: 70, moneyBonus: 350 }, // Magicarpe évolue en Léviathor après 50 captures
   56: { evolvesTo: 59, threshold: 40, moneyBonus: 200 }, // Férosinge évolue en Colossinge après 50 captures
