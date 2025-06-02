@@ -15,8 +15,8 @@ let capturedPokemonCounts = {};
 let playerMoney = 0;
 let playerMoneyElement;
 let evolutionQueue = [];
-let titre;         // Declared globally
-let replayButton;  // Declared globally
+let titre;         
+let replayButton;  
 let gridElement;
 
 const EVOLUTIONS = {
@@ -43,10 +43,28 @@ const EVOLUTIONS = {
   60: { evolvesTo: 61, threshold: 30, moneyBonus: 300 }, // Ptitard évolue en Tetarte après 50 captures
   61: { evolvesTo: 62, threshold: 3, moneyBonus: 1500 }, // tetarte évolue en Tartard après 50 captures
   74: { evolvesTo: 75, threshold: 40, moneyBonus: 60 }, // racaillou évolue en Gravalanch après 50 captures
-  75: { evolvesTo: 76, threshold: 4, moneyBonus: 300 }, // Gravalanch évolue en Grolem après 50 captures
+  75: { evolvesTo: 76, threshold: 4, moneyBonus: 400 }, // Gravalanch évolue en Grolem après 50 captures
   79: { evolvesTo: 80, threshold: 30, moneyBonus: 250 }, // Ramoloss évolue en Flagadoss après 50 captures
   118: { evolvesTo: 119, threshold: 40, moneyBonus: 230 }, // Poissireine évolue en Poissoroy après 50 captures
   116: { evolvesTo: 117, threshold: 30, moneyBonus: 500 }, // Hypotrempe évolue en Hyporoi après 50 captures
+  63: { evolvesTo: 64, threshold: 30, moneyBonus: 1000 }, // Abra évolue en Kadabra après 50 captures
+  64: { evolvesTo: 65, threshold: 3, moneyBonus: 5000 }, // Kadabra évolue en Alakazam après 50 captures
+  43: { evolvesTo: 44, threshold: 40, moneyBonus: 150 }, // Mystherbe évolue en Ortide après 50 captures
+  44: { evolvesTo: 45, threshold: 3, moneyBonus: 300 }, // Ortide évolue en Raflésia après 50 captures
+  69: { evolvesTo: 70, threshold: 40, moneyBonus: 150 }, // Chétiflor évolue en Boustiflor après 50 captures
+  70: { evolvesTo: 71, threshold: 3, moneyBonus: 300 }, // Boustiflor évolue en Empiflor après 50 captures
+  23: { evolvesTo: 24, threshold: 30, moneyBonus: 180 }, // Boustiflor évolue en Empiflor après 50 captures
+  90: { evolvesTo: 91, threshold: 40, moneyBonus: 150 }, // Kokiyas évolue en Crustabri après 50 captures
+  98: { evolvesTo: 99, threshold: 40, moneyBonus: 150 }, // Krabby évolue en Krabboss après 50 captures
+  72: { evolvesTo: 73, threshold: 40, moneyBonus: 175 }, // Tentacool évolue en Tentacruek après 50 captures
+  48: { evolvesTo: 49, threshold: 40, moneyBonus: 200 }, // Mimitoss évolue en Aéromite après 50 captures
+  37: { evolvesTo: 38, threshold: 40, moneyBonus: 400 }, // Goupix évolue en Feunard après 50 captures
+  58: { evolvesTo: 59, threshold: 40, moneyBonus: 300 }, // Caninos évolue en Arcanin après 50 captures
+  66: { evolvesTo: 67, threshold: 30, moneyBonus: 150 }, // Machoc évolue en Machopeur après 50 captures
+  67: { evolvesTo: 68, threshold: 3, moneyBonus: 500 }, // Machoc évolue en Machopeur après 50 captures
+  96: { evolvesTo: 97, threshold: 40, moneyBonus: 275 }, // Spoporifik évolue en Hypnomade après 50 captures
+  100: { evolvesTo: 101, threshold: 40, moneyBonus: 450 }, // Voltorbe évolue en Electrode après 50 captures
+  81: { evolvesTo: 82, threshold: 40, moneyBonus: 150 }, // Magnéti évolue en Magnéton après 50 captures
 };
 
 const LEVELS = {
@@ -72,7 +90,7 @@ const LEVELS = {
     minMines: 3, // Minimum de Voltorbes
     maxMines: 6, // Maximum de Voltorbes
     backgroundImage: "./img/road.jpg",
-    cost: 150,
+    cost: 200,
     encounterTable: [
       { pokemonId: 1, chance: 1, money: 2000 }, // Bulbizarre
       { pokemonId: 16, chance: 25, money: 10 }, // Roucool
@@ -82,6 +100,8 @@ const LEVELS = {
       { pokemonId: 29, chance: 15, money: 30 }, // Nidoran Femelle
       { pokemonId: 32, chance: 15, money: 30 }, // Nidoran Mâle
       { pokemonId: 21, chance: 20, money: 20 }, // Piafabec
+      { pokemonId: 39, chance: 8, money: 45 }, // Rondoudou
+      { pokemonId: 63, chance: 2, money: 80 }, // Abra
     ],
   },
   foret: {
@@ -92,14 +112,17 @@ const LEVELS = {
     minMines: 4,
     maxMines: 8,
     backgroundImage: "./img/forest.jpg",
-    cost: 500,
+    cost: 350,
     encounterTable: [
-      { pokemonId: 10, chance: 35, money: 10 }, // Chenipan
-      { pokemonId: 13, chance: 30, money: 10 }, // Aspicot
+      { pokemonId: 10, chance: 25, money: 10 }, // Chenipan
+      { pokemonId: 13, chance: 25, money: 10 }, // Aspicot
       { pokemonId: 25, chance: 2, money: 500 }, // Pikachu
       { pokemonId: 127, chance: 10, money: 100 }, // Scarabrute
       { pokemonId: 143, chance: 3, money: 350 }, // Ronflex
       { pokemonId: 123, chance: 3, money: 300 }, // Insécateur
+      { pokemonId: 43, chance: 15, money: 30 }, // Mystherbe
+      { pokemonId: 69, chance: 15, money: 30 }, // Chétiflor
+      { pokemonId: 63, chance: 2, money: 80 }, // Abra
     ],
   },
   riviere: {
@@ -110,12 +133,15 @@ const LEVELS = {
     minMines: 6,
     maxMines: 10,
     backgroundImage: "./img/riviere.jpg",
-    cost: 1000,
+    cost: 800,
     encounterTable: [
       { pokemonId: 7, chance: 1, money: 2000 }, // Carapuce
       { pokemonId: 60, chance: 10, money: 60 }, // Ptitard
       { pokemonId: 129, chance: 35, money: 10 }, // Magicarpe
       { pokemonId: 79, chance: 15, money: 40 }, // Ramoloss
+      { pokemonId: 23, chance: 20, money: 20 }, // Abo
+      { pokemonId: 63, chance: 3, money: 80 }, // Abra
+      { pokemonId: 132, chance: 3, money: 125 }, // Métamorphe
     ],
   },
   caverne: {
@@ -124,9 +150,9 @@ const LEVELS = {
     rows: 8,
     cols: 8,
     minMines: 9,
-    maxMines: 16,
+    maxMines: 12,
     backgroundImage: "./img/cavern.jpg",
-    cost: 1500,
+    cost: 1250,
     encounterTable: [
       { pokemonId: 41, chance: 30, money: 10 }, // Nosferapti
       { pokemonId: 74, chance: 30, money: 10 }, // Racaillou
@@ -134,6 +160,9 @@ const LEVELS = {
       { pokemonId: 46, chance: 15, money: 40 }, // Paras
       { pokemonId: 35, chance: 2, money: 200 }, // Melofée
       { pokemonId: 27, chance: 20, money: 30 }, // Sabelette
+      { pokemonId: 63, chance: 3, money: 80 }, // Abra
+      { pokemonId: 143, chance: 3, money: 350 }, // Ronflex
+      { pokemonId: 132, chance: 3, money: 125 }, // Métamorphe
     ],
   },
   plage: {
@@ -142,13 +171,61 @@ const LEVELS = {
     rows: 8,
     cols: 8,
     minMines: 9,
-    maxMines: 16,
+    maxMines: 12,
     backgroundImage: "./img/plage.jpg",
-    cost: 1500,
+    cost: 1250,
     encounterTable: [
-      { pokemonId: 129, chance: 35, money: 10 }, // Magicarpe
-      { pokemonId: 118, chance: 25, money: 25 }, // Poissirène
-      { pokemonId: 116, chance: 10, money: 50 }, // hypotempe
+      { pokemonId: 129, chance: 25, money: 5 }, // Magicarpe
+      { pokemonId: 118, chance: 15, money: 25 }, // Poissirène
+      { pokemonId: 116, chance: 10, money: 50 }, // hypotrempe
+      { pokemonId: 72, chance: 25, money: 5 }, // Tentacool
+      { pokemonId: 90, chance: 15, money: 15 }, // Kokiyas
+      { pokemonId: 98, chance: 15, money: 15 }, // Krabby
+      { pokemonId: 131, chance: 5, money: 200 }, // Lokhlass
+      { pokemonId: 132, chance: 3, money: 125 }, // Métamorphe
+    ],
+  },
+  sentier: {
+    id: "sentier",
+    title: "Sentier sinueux",
+    rows: 9,
+    cols: 9,
+    minMines: 10,
+    maxMines: 12,
+    backgroundImage: "./img/sentier.jpg",
+    cost: 1750,
+    encounterTable: [
+      { pokemonId: 48, chance: 20, money: 40 }, // Mimitoss
+      { pokemonId: 37, chance: 5, money: 80 }, // Goupix
+      { pokemonId: 58, chance: 15, money: 50 }, // Caninos
+      { pokemonId: 63, chance: 3, money: 80 }, // Abra
+      { pokemonId: 66, chance: 15, money: 40 }, // Machoc
+      { pokemonId: 83, chance: 20, money: 30 }, // Canarticho
+      { pokemonId: 96, chance: 15, money: 50 }, // Soporifik
+      { pokemonId: 108, chance: 10, money: 60 }, // Exelangue
+      { pokemonId: 114, chance: 15, money: 60 }, // Saquedeneu
+      { pokemonId: 132, chance: 3, money: 125 }, // Métamorphe
+    ],
+  },
+  centrale: {
+    id: "centrale",
+    title: "Centrale",
+    rows: 9,
+    cols: 9,
+    minMines: 12,
+    maxMines: 15,
+    backgroundImage: "./img/centrale.jpg",
+    cost: 2000,
+    encounterTable: [
+      { pokemonId: 100, chance: 25, money: 1 }, // Voltorbe
+      { pokemonId: 125, chance: 15, money: 30 }, // Elektek
+      { pokemonId: 145, chance: 0.1, money: 10000 }, // Electhor
+      { pokemonId: 137, chance: 5, money: 100 }, // Porygon
+      { pokemonId: 135, chance: 1, money: 1500 }, // Voltali
+      { pokemonId: 132, chance: 3, money: 125 }, // Métamorphe
+      { pokemonId: 122, chance: 10, money: 60 }, // M.Mime
+      { pokemonId: 113, chance: 8, money: 100 }, // Leveinard
+      { pokemonId: 81, chance: 25, money: 5 }, // Magnéti
     ],
   },
 };
@@ -498,9 +575,6 @@ function showEvolutionModal(basePokemon, evolvedPokemon, evolutionRule) {
 
           const audio = new Audio(encounteredPokemon.cry);
           audio.play();
-
-          currentRevealTotalMoney += pokemonMoney;
-          currentRevealMoneyElement.textContent = currentRevealTotalMoney;
 
           if (!capturedPokemonIds.has(encounteredPokemon.id)) {
             capturedPokemonIds.add(encounteredPokemon.id);
