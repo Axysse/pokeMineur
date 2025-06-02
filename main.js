@@ -17,8 +17,8 @@ let playerMoneyElement; // NOUVEAU : Élément DOM pour afficher l'argent
 
 const EVOLUTIONS = {
   19: { evolvesTo: 20, threshold: 40, moneyBonus: 70 }, // Rattata (19) évolue en Rattatac (20) après 50 captures
-  16: { evolvesTo: 17, threshold: 40, moneyBonus: 70 }, // Roucool (16) évolue en Roucoups (17) après 50 captures
-  17: { evolvesTo: 18, threshold: 30, moneyBonus: 150 }, // Roucoups (17) évolue en Roucarnage (18) après 70 captures
+  16: { evolvesTo: 17, threshold: 10, moneyBonus: 70 }, // Roucool (16) évolue en Roucoups (17) après 50 captures
+  17: { evolvesTo: 18, threshold: 2, moneyBonus: 150 }, // Roucoups (17) évolue en Roucarnage (18) après 70 captures
   52: { evolvesTo: 53, threshold: 50, moneyBonus: 120 }, // Miaouss évolue en Persian après 50 captures
   129: { evolvesTo: 130, threshold: 70, moneyBonus: 350 }, // Magicarpe évolue en Léviathor après 50 captures
   56: { evolvesTo: 59, threshold: 40, moneyBonus: 200 }, // Férosinge évolue en Colossinge après 50 captures
@@ -50,8 +50,8 @@ const LEVELS = {
     title: "Hautes-herbes",
     rows: 5,
     cols: 5,
-    minMines: 2, // Minimum de Voltorbes
-    maxMines: 3, // Maximum de Voltorbes
+    minMines: 0, // Minimum de Voltorbes
+    maxMines: 0, // Maximum de Voltorbes
     backgroundImage: "./img/grass.jpg",
     cost: 0,
     encounterTable: [
@@ -142,9 +142,9 @@ const LEVELS = {
     backgroundImage: "./img/plage.jpg",
     cost: 1500,
     encounterTable: [
-        { pokemonId: 129, chance: 35, money: 10 }, // Magicarpe
-        { pokemonId: 118, chance: 25, money: 30 }, // Poissirène
-        { pokemonId: 116, chance: 15, money: 50 }, // hypotempe
+      { pokemonId: 129, chance: 35, money: 10 }, // Magicarpe
+      { pokemonId: 118, chance: 25, money: 30 }, // Poissirène
+      { pokemonId: 116, chance: 15, money: 50 }, // hypotempe
     ],
   },
 };
@@ -187,10 +187,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         );
         return;
       }
-      // --- NOUVEAU : Logique de paiement du niveau ---
       if (playerMoney >= level.cost) {
         showConfirmationModal(level.title, level.cost, () => {
-          // Fonction de rappel si l'utilisateur confirme l'achat
           playerMoney -= level.cost; // Déduit l'argent
           playerMoneyElement.textContent = playerMoney; // Met à jour l'affichage global
           currentLevel = level;
@@ -199,7 +197,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       } else {
         showAccessDeniedModal(level.cost);
       }
-      // --- FIN NOUVEAU ---
     });
     levelSelectionDiv.appendChild(button);
   }
@@ -238,7 +235,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     pokeImg.id = `pokedex-sprite-${pokemon.id}`; // ID unique pour cibler l'image
 
     const pokeName = document.createElement("p");
-    // MODIFIÉ : Le nom est initialement "???"
     pokeName.textContent = "???";
     pokeName.classList.add(
       "text-xs",
@@ -318,19 +314,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (existingContent) {
         existingContent.remove();
       }
-      // Assurez-vous que l'attribut 'status' est retiré ou non défini au démarrage
-      // pour éviter des problèmes si une cellule était "boom" de la partie précédente
       cell.removeAttribute("status");
     });
 
-    // NOUVEAU : NE PLUS INITIALISER safeCellsToReveal ICI
-    // safeCellsToReveal = 0;
-    // allCells.forEach((cell) => {
-    //     if (cell.getAttribute("status") === "safe") {
-    //         safeCellsToReveal++;
-    //     }
-    // });
-    // console.log("Nouveau jeu démarré. Niveau :", currentLevel.title, "Cellules sûres à révéler :", safeCellsToReveal);
     console.log(
       "Nouveau jeu démarré. Niveau :",
       currentLevel.title,
@@ -344,17 +330,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    // NOUVEAU : Logique pour le premier clic
     if (!gameStarted) {
       gameStarted = true;
       toggleLevelSelectionButtons(false);
       // Place les mines après le premier clic, en s'assurant que 'element' est sûr
       placeMines(currentLevel.rows, currentLevel.cols, Number(element.id));
 
-      // Met à jour 'allCells' après que les attributs status aient été ajoutés par placeMines
       allCells = document.querySelectorAll(".cell");
 
-      // Calcule le nombre de cellules sûres à révéler après que les mines soient placées
       safeCellsToReveal = 0;
       allCells.forEach((cell) => {
         if (cell.getAttribute("status") === "safe") {
@@ -510,7 +493,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         })
       );
 
-    // Crée les éléments DOM des cellules sans définir leur statut "boom" ou "safe"
     let i = 0;
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
@@ -521,7 +503,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         cell.id = i;
         // Ne pas définir le statut ici
         gridElement.appendChild(cell);
-        cell.addEventListener('contextmenu', (event) => handleRightClick(event, r, c));
+        cell.addEventListener("contextmenu", (event) =>
+          handleRightClick(event, r, c)
+        );
         i++;
       }
     }
@@ -535,26 +519,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       ) + currentLevel.minMines;
     const minePositions = new Set();
 
-    // S'assure que la cellule cliquée (clickedCellId) n'est jamais une mine
     const forbiddenPositions = new Set();
     if (clickedCellId !== undefined && clickedCellId !== null) {
       forbiddenPositions.add(clickedCellId);
-      // Optionnel : Vous pouvez aussi interdire les 8 cellules autour du premier clic
-      // pour une expérience encore plus douce.
-      // let clickedRow = Math.floor(clickedCellId / cols);
-      // let clickedCol = clickedCellId % cols;
-      // for (let rOffset = -1; rOffset <= 1; rOffset++) {
-      //     for (let cOffset = -1; cOffset <= 1; cOffset++) {
-      //         let neighborRow = clickedRow + rOffset;
-      //         let neighborCol = clickedCol + cOffset;
-      //         if (neighborRow >= 0 && neighborRow < rows && neighborCol >= 0 && neighborCol < cols) {
-      //             forbiddenPositions.add(neighborRow * cols + neighborCol);
-      //         }
-      //     }
-      // }
     }
-
-    // Sélectionne aléatoirement les positions des mines, en évitant les positions interdites
     while (minePositions.size < minesToPlace) {
       let randomPos = Math.floor(Math.random() * totalCells);
       if (!forbiddenPositions.has(randomPos)) {
@@ -562,7 +530,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     }
 
-    // Parcourt toutes les cellules et assigne le statut "boom" ou "safe"
     for (let i = 0; i < totalCells; i++) {
       const cell = document.getElementById(i); // Récupère la cellule par son ID
       if (minePositions.has(i)) {
@@ -693,8 +660,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const pokemonRevealArea = document.getElementById("pokemon-reveal-area");
     const currentRevealMoneyElement = document.getElementById(
       "current-reveal-money"
-    ); // NOUVEAU : pour l'affichage dans la modal
-    let currentRevealTotalMoney = 0; // NOUVEAU : pour la somme cumulée pendant la révélation
+    );
+    let currentRevealTotalMoney = 0;
 
     let openedCount = 0;
 
@@ -742,11 +709,9 @@ document.addEventListener("DOMContentLoaded", async () => {
           const audio = new Audio(encounteredPokemon.cry);
           audio.play();
 
-          // NOUVEAU : Met à jour l'argent cumulé pendant la révélation
           currentRevealTotalMoney += pokemonMoney;
           currentRevealMoneyElement.textContent = currentRevealTotalMoney;
 
-          // NOUVEAU : Met à jour l'argent global du joueur
           playerMoney += pokemonMoney;
           playerMoneyElement.textContent = playerMoney; // Met à jour l'affichage global de l'argent
 
@@ -782,8 +747,6 @@ document.addEventListener("DOMContentLoaded", async () => {
           } else {
             console.log(`${encounteredPokemon.name} déjà capturé.`);
           }
-
-          // --- NOUVEAU : Logique d'évolution après chaque capture ---
           const evolutionRule = EVOLUTIONS[encounteredPokemon.id];
           if (evolutionRule) {
             const currentCaptures =
@@ -803,7 +766,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                 console.log("Found evolvedPokemon:", evolvedPokemon);
                 // On retarde l'évolution un peu pour que la modal de capture ait le temps de se fermer
                 setTimeout(() => {
-                  showEvolutionModal(encounteredPokemon, evolvedPokemon, evolutionRule);
+                  showEvolutionModal(
+                    encounteredPokemon,
+                    evolvedPokemon,
+                    evolutionRule
+                  );
                 }, 2500); // Délai après la fin de la révélation des captures
               } else {
                 console.warn(
@@ -887,7 +854,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     return null;
   }
 
-  // main.js - Ajoutez cette nouvelle fonction, par exemple, avant la fermeture de DOMContentLoaded
   function showConfirmationModal(levelName, cost, onConfirm) {
     const modal = document.createElement("div");
     modal.classList.add("confirmation-modal"); // Classe CSS pour la modal de confirmation
@@ -951,7 +917,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     modal.style.display = "flex"; // Rendre la modale visible
 
-    // Ferme la modale lorsque le bouton est cliqué
     document
       .getElementById("close-access-denied-modal")
       .addEventListener("click", () => {
@@ -959,7 +924,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
   }
 
-  // main.js - Nouvelle fonction pour la modale d'évolution
   function showEvolutionModal(basePokemon, evolvedPokemon, evolutionRule) {
     console.log(
       "showEvolutionModal called. basePokemon:",
@@ -977,12 +941,23 @@ document.addEventListener("DOMContentLoaded", async () => {
             <h3>Félicitations !</h3>
             <p>${basePokemon.name} a évolué en...</p>
             <div class="evolution-display flex flex-col items-center justify-center">
-                <img src="${basePokemon.sprite}" alt="${basePokemon.name}" class="w-24 h-24 mb-4" id="base-pokemon-sprite">
-                <p class="text-xl font-bold capitalize mb-4" id="base-pokemon-name">${basePokemon.name}</p>
-                <img src="./img/evolution-icon.png" alt="Évolution" class="w-16 h-16 animate-pulse" id="evolution-icon">
-                <img src="${evolvedPokemon.sprite}" alt="${evolvedPokemon.name}" class="w-24 h-24 mt-4 opacity-0" id="evolved-pokemon-sprite">
-                <p class="text-2xl font-bold capitalize mt-2 opacity-0 text-purple-700" id="evolved-pokemon-name">${evolvedPokemon.name} !</p>
-                ${moneyBonus > 0 ? `<p class="text-lg font-bold text-green-500 mt-4">Vous gagnez +${moneyBonus} ₽ !</p>` : ''}
+                <img src="${basePokemon.sprite}" alt="${
+      basePokemon.name
+    }" class="w-24 h-24 mb-4" id="base-pokemon-sprite">
+                <p class="text-xl font-bold capitalize mb-4" id="base-pokemon-name">${
+                  basePokemon.name
+                }</p>
+                <img src="${evolvedPokemon.sprite}" alt="${
+      evolvedPokemon.name
+    }" class="w-24 h-24 mt-4 opacity-0" id="evolved-pokemon-sprite">
+                <p class="text-2xl font-bold capitalize mt-2 opacity-0 text-purple-700" id="evolved-pokemon-name">${
+                  evolvedPokemon.name
+                } !</p>
+                ${
+                  moneyBonus > 0
+                    ? `<p class="text-lg font-bold text-green-500 mt-4">Vous gagnez +${moneyBonus} ₽ !</p>`
+                    : ""
+                }
             </div>
             <button id="close-evolution-modal" class="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 mt-6">Impressionnant !</button>
         </div>
@@ -995,12 +970,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       "evolved-pokemon-sprite"
     );
     const evolvedNameElement = document.getElementById("evolved-pokemon-name");
-    const evolutionIcon = document.getElementById("evolution-icon");
 
-    // Petite animation de l'évolution
+
     setTimeout(() => {
-      evolutionIcon.classList.remove("animate-pulse");
-      evolutionIcon.classList.add("hidden"); // Cache l'icône
       evolvedSpriteElement.classList.remove("opacity-0");
       evolvedSpriteElement.classList.add("animate-fade-in"); // Assurez-vous d'avoir animate-fade-in dans votre CSS/Tailwind
       evolvedNameElement.classList.remove("opacity-0");
@@ -1022,12 +994,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   function updatePokedexAfterEvolution(basePokemon, evolvedPokemon) {
     console.log("updatePokedexAfterEvolution called for:", evolvedPokemon.name);
 
-    // Assure que le compteur pour le Pokémon évolué est au moins 1 lors de sa première évolution.
-    if (capturedPokemonCounts[evolvedPokemon.id] === 0) {
-      capturedPokemonCounts[evolvedPokemon.id] = 1;
-    } else {
-      capturedPokemonCounts[evolvedPokemon.id]++;
-    }
+    // Incrémente le compteur de captures pour le Pokémon évolué.
+    // Si c'est la première fois qu'il est obtenu (par évolution), il sera initialisé à 1.
+    // Sinon, il sera incrémenté comme une capture normale.
+    capturedPokemonCounts[evolvedPokemon.id] = (capturedPokemonCounts[evolvedPokemon.id] || 0) + 1;
 
     const evolutionRule = EVOLUTIONS[basePokemon.id]; // On cherche la règle d'évolution du Pokémon de base
     if (evolutionRule && evolutionRule.moneyBonus) {
@@ -1036,8 +1006,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       console.log(
         `Bonus d'évolution ! Vous avez gagné ${evolutionRule.moneyBonus} PokéDollars pour l'évolution de ${basePokemon.name} en ${evolvedPokemon.name}. Total: ${playerMoney}`
       );
-
-      // Optionnel: Afficher un message temporaire pour le bonus d'argent
       showMessage(
         `+${evolutionRule.moneyBonus} ₽ (Évolution de ${basePokemon.name})`
       );
@@ -1067,7 +1035,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log(`${evolvedPokemon.name} (évolution) déjà révélé.`);
       }
 
-      // Applique une animation de bordure au Pokédex
       pokedexImg.parentElement.classList.add("scale-110", "border-purple-400");
       setTimeout(() => {
         pokedexImg.parentElement.classList.remove(
@@ -1077,7 +1044,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       }, 500);
     }
 
-    // Met à jour l'affichage du compteur du Pokédex
     if (pokedexCount) {
       pokedexCount.textContent = `${capturedPokemonCounts[evolvedPokemon.id]}`;
       pokedexCount.classList.add("animate-pulse", "text-purple-600");
@@ -1085,49 +1051,51 @@ document.addEventListener("DOMContentLoaded", async () => {
         pokedexCount.classList.remove("animate-pulse", "text-purple-600");
       }, 500);
     }
+
+      // NOUVEAU : Vérifier si le Pokémon évolué peut lui-même évoluer
+    const nextEvolutionRule = EVOLUTIONS[evolvedPokemon.id];
+    if (nextEvolutionRule) {
+        const currentCaptures = capturedPokemonCounts[evolvedPokemon.id];
+        if (currentCaptures > 0 && currentCaptures % nextEvolutionRule.threshold === 0) {
+            console.log(`${evolvedPokemon.name} a atteint le seuil d'évolution suivant !`);
+            const nextEvolvedPokemon = allPokemonData.find(
+                (p) => p.id === nextEvolutionRule.evolvesTo
+            );
+            if (nextEvolvedPokemon) {
+                // Déclencher la prochaine évolution après un court délai pour ne pas superposer les modales
+                setTimeout(() => {
+                    showEvolutionModal(evolvedPokemon, nextEvolvedPokemon, nextEvolutionRule);
+                }, 2500); // Même délai que pour la première évolution
+            } else {
+                console.warn(
+                    `Pokémon de la prochaine évolution avec ID ${nextEvolutionRule.evolvesTo} non trouvé.`
+                );
+            }
+        }
+    }
   }
 
   function handleRightClick(event, row, col) {
     event.preventDefault(); // <-- TRÈS IMPORTANT : Empêche le menu contextuel du navigateur
-
     const cellElement = event.currentTarget; // L'élément div de la case
-
-    // Assumons que tu as un moyen d'accéder à l'objet logique de la cellule à (row, col)
-    // Par exemple, si tu as une structure comme `grid[row][col]` qui stocke l'état de la cellule
     const cellData = grid[row][col]; // Si 'grid' est ton tableau 2D de données pour le démineur
 
-    // Si la case est déjà révélée, on ne peut pas mettre de drapeau dessus
     if (cellData.isRevealed) {
-        return;
+      return;
     }
 
     if (cellData.isFlagged) {
-        // Si la case a déjà un drapeau, on le retire
-        cellData.isFlagged = false;
-        cellElement.style.backgroundImage = ''; // Retire l'image de fond
-        cellElement.classList.remove('flagged'); // Retire la classe CSS si tu en utilises une
-        // Optionnel : Mettre à jour le compteur de drapeaux restants si tu en as un
-        // flagsRemaining++;
-        // updateFlagsDisplay();
+      // Si la case a déjà un drapeau, on le retire
+      cellData.isFlagged = false;
+      cellElement.style.backgroundImage = ""; // Retire l'image de fond
+      cellElement.classList.remove("flagged"); // Retire la classe CSS si tu en utilises une
     } else {
-        // Si la case n'a pas de drapeau, on en place un
-        // Optionnel : Vérifier si le nombre max de drapeaux n'est pas atteint
-        // if (flagsRemaining > 0) {
-            cellData.isFlagged = true;
-            cellElement.style.backgroundImage = 'url("./img/flag.png")'; // Chemin vers ton image de drapeau
-            cellElement.style.backgroundSize = 'contain'; // Pour s'assurer que l'image s'adapte
-            cellElement.style.backgroundRepeat = 'no-repeat';
-            cellElement.style.backgroundPosition = 'center';
-            cellElement.classList.add('flagged'); // Ajoute une classe CSS si tu veux styliser les drapeaux
-
-            // Optionnel : Mettre à jour le compteur de drapeaux restants
-            // flagsRemaining--;
-            // updateFlagsDisplay();
-        // } else {
-        //     // Tu peux ajouter ici une notification si plus de drapeaux disponibles
-        //     console.log("Plus de drapeaux disponibles !");
-        // }
+      cellData.isFlagged = true;
+      cellElement.style.backgroundImage = 'url("./img/flag.png")'; // Chemin vers ton image de drapeau
+      cellElement.style.backgroundSize = "contain"; // Pour s'assurer que l'image s'adapte
+      cellElement.style.backgroundRepeat = "no-repeat";
+      cellElement.style.backgroundPosition = "center";
+      cellElement.classList.add("flagged"); // Ajoute une classe CSS si tu veux styliser les drapeaux
     }
-}
-
+  }
 });
