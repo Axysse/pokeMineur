@@ -20,32 +20,33 @@ let replayButton;  // Declared globally
 let gridElement;
 
 const EVOLUTIONS = {
-  19: { evolvesTo: 20, threshold: 40, moneyBonus: 70 }, // Rattata (19) évolue en Rattatac (20) après 50 captures
-  16: { evolvesTo: 17, threshold: 30, moneyBonus: 70 }, // Roucool (16) évolue en Roucoups (17) après 50 captures
-  17: { evolvesTo: 18, threshold: 3, moneyBonus: 150 }, // Roucoups (17) évolue en Roucarnage (18) après 70 captures
-  52: { evolvesTo: 53, threshold: 50, moneyBonus: 120 }, // Miaouss évolue en Persian après 50 captures
-  129: { evolvesTo: 130, threshold: 70, moneyBonus: 350 }, // Magicarpe évolue en Léviathor après 50 captures
-  56: { evolvesTo: 59, threshold: 40, moneyBonus: 200 }, // Férosinge évolue en Colossinge après 50 captures
-  25: { evolvesTo: 26, threshold: 40, moneyBonus: 350 }, // Pikachu évolue en Raichu après 50 captures
-  21: { evolvesTo: 22, threshold: 40, moneyBonus: 80 }, // Piafabec évolue en Rapasdepic après 50 captures
-  10: { evolvesTo: 11, threshold: 40, moneyBonus: 70 }, // Chenipan évolue en Crysacier après 50 captures
-  11: { evolvesTo: 12, threshold: 40, moneyBonus: 50 }, // Crysacier évolue en Papillusion après 50 captures
-  13: { evolvesTo: 14, threshold: 30, moneyBonus: 80 }, // Aspicot évolue en Coconfort après 50 captures
-  14: { evolvesTo: 15, threshold: 30, moneyBonus: 150 }, // Cocnfort évolue en Dardagnan après 50 captures
-  29: { evolvesTo: 30, threshold: 40, moneyBonus: 80 }, // nidoran femelle évolue en Nidorina après 50 captures
-  30: { evolvesTo: 31, threshold: 30, moneyBonus: 170 }, // nidorana femelle évolue en Nidoqueen après 50 captures
-  32: { evolvesTo: 33, threshold: 40, moneyBonus: 80 }, // nidoran male évolue en Nidorino après 50 captures
-  33: { evolvesTo: 34, threshold: 30, moneyBonus: 170 }, // nidorino évolue en Nidoking après 50 captures
-  35: { evolvesTo: 36, threshold: 30, moneyBonus: 250 }, // melofée évolue en Melodelfe après 50 captures
-  41: { evolvesTo: 42, threshold: 50, moneyBonus: 60 }, // melofée évolue en Melodelfe après 50 captures
-  46: { evolvesTo: 47, threshold: 40, moneyBonus: 120 }, // melofée évolue en Melodelfe après 50 captures
-  60: { evolvesTo: 61, threshold: 40, moneyBonus: 110 }, // Ptitard évolue en Tetarte après 50 captures
-  61: { evolvesTo: 62, threshold: 30, moneyBonus: 350 }, // tetarte évolue en Tartard après 50 captures
-  74: { evolvesTo: 75, threshold: 40, moneyBonus: 150 }, // racaillou évolue en Gravalanch après 50 captures
-  75: { evolvesTo: 76, threshold: 30, moneyBonus: 350 }, // Gravalanch évolue en Grolem après 50 captures
-  79: { evolvesTo: 80, threshold: 30, moneyBonus: 300 }, // Ramoloss évolue en Flagadoss après 50 captures
-  118: { evolvesTo: 119, threshold: 30, moneyBonus: 70 }, // Poissireine évolue en Poissoroy après 50 captures
-  116: { evolvesTo: 117, threshold: 30, moneyBonus: 150 }, // Hypotrempe évolue en Hyporoi après 50 captures
+  19: { evolvesTo: 20, threshold: 30, moneyBonus: 50 }, // Rattata (19) évolue en Rattatac (20) après 50 captures
+  16: { evolvesTo: 17, threshold: 30, moneyBonus: 50 }, // Roucool (16) évolue en Roucoups (17) après 50 captures
+  17: { evolvesTo: 18, threshold: 3, moneyBonus: 250 }, // Roucoups (17) évolue en Roucarnage (18) après 70 captures
+  52: { evolvesTo: 53, threshold: 40, moneyBonus: 200 }, // Miaouss évolue en Persian après 50 captures
+  129:{ evolvesTo: 130, threshold: 100, moneyBonus: 500 }, // Magicarpe évolue en Léviathor après 50 captures
+  56: { evolvesTo: 59, threshold: 40, moneyBonus: 300 }, // Férosinge évolue en Colossinge après 50 captures
+  25: { evolvesTo: 26, threshold: 3, moneyBonus: 500 }, // Pikachu évolue en Raichu après 50 captures
+  21: { evolvesTo: 22, threshold: 40, moneyBonus: 100 }, // Piafabec évolue en Rapasdepic après 50 captures
+  10: { evolvesTo: 11, threshold: 30, moneyBonus: 50 }, // Chenipan évolue en Crysacier après 50 captures
+  11: { evolvesTo: 12, threshold: 3, moneyBonus: 250 }, // Crysacier évolue en Papillusion après 50 captures
+  13: { evolvesTo: 14, threshold: 30, moneyBonus: 50 }, // Aspicot évolue en Coconfort après 50 captures
+  14: { evolvesTo: 15, threshold: 3, moneyBonus: 250 }, // Coconfort évolue en Dardagnan après 50 captures
+  29: { evolvesTo: 30, threshold: 40, moneyBonus: 150 }, // nidoran femelle évolue en Nidorina après 50 captures
+  30: { evolvesTo: 31, threshold: 3, moneyBonus: 500 }, // nidorana femelle évolue en Nidoqueen après 50 captures
+  32: { evolvesTo: 33, threshold: 40, moneyBonus: 150}, // nidoran male évolue en Nidorino après 50 captures
+  33: { evolvesTo: 34, threshold: 3, moneyBonus: 500 }, // nidorino évolue en Nidoking après 50 captures
+  35: { evolvesTo: 36, threshold: 30, moneyBonus: 350 }, // melofée évolue en Melodelfe après 50 captures
+  41: { evolvesTo: 42, threshold: 40, moneyBonus: 50 }, // nosferapti évolue en Nosferalto après 50 captures
+  46: { evolvesTo: 47, threshold: 40, moneyBonus: 200 }, // Paras évolue en Parasecte après 50 captures
+  27: { evolvesTo: 28, threshold: 40, moneyBonus: 150 }, // Sabelette évolue en Sablaireau après 50 captures
+  60: { evolvesTo: 61, threshold: 30, moneyBonus: 300 }, // Ptitard évolue en Tetarte après 50 captures
+  61: { evolvesTo: 62, threshold: 3, moneyBonus: 1500 }, // tetarte évolue en Tartard après 50 captures
+  74: { evolvesTo: 75, threshold: 40, moneyBonus: 60 }, // racaillou évolue en Gravalanch après 50 captures
+  75: { evolvesTo: 76, threshold: 4, moneyBonus: 300 }, // Gravalanch évolue en Grolem après 50 captures
+  79: { evolvesTo: 80, threshold: 30, moneyBonus: 250 }, // Ramoloss évolue en Flagadoss après 50 captures
+  118: { evolvesTo: 119, threshold: 40, moneyBonus: 230 }, // Poissireine évolue en Poissoroy après 50 captures
+  116: { evolvesTo: 117, threshold: 30, moneyBonus: 500 }, // Hypotrempe évolue en Hyporoi après 50 captures
 };
 
 const LEVELS = {
@@ -59,8 +60,8 @@ const LEVELS = {
     backgroundImage: "./img/grass.jpg",
     cost: 0,
     encounterTable: [
-      { pokemonId: 16, chance: 30, money: 10 }, // Roucool
-      { pokemonId: 19, chance: 30, money: 10 }, // Ratata
+      { pokemonId: 16, chance: 30, money: 5 }, // Roucool
+      { pokemonId: 19, chance: 30, money: 5 }, // Ratata
     ],
   },
   route_de_jadielle: {
@@ -73,14 +74,14 @@ const LEVELS = {
     backgroundImage: "./img/road.jpg",
     cost: 150,
     encounterTable: [
-      { pokemonId: 1, chance: 1, money: 2500 }, // Bulbizarre
+      { pokemonId: 1, chance: 1, money: 2000 }, // Bulbizarre
       { pokemonId: 16, chance: 25, money: 10 }, // Roucool
       { pokemonId: 19, chance: 25, money: 10 }, // Ratata
       { pokemonId: 52, chance: 10, money: 40 }, // Miaouss
-      { pokemonId: 56, chance: 5, money: 70 }, // Férosinge
-      { pokemonId: 29, chance: 15, money: 40 }, // Nidoran Femelle
-      { pokemonId: 32, chance: 15, money: 40 }, // Nidoran Mâle
-      { pokemonId: 21, chance: 20, money: 25 }, // Piafabec
+      { pokemonId: 56, chance: 5, money: 60 }, // Férosinge
+      { pokemonId: 29, chance: 15, money: 30 }, // Nidoran Femelle
+      { pokemonId: 32, chance: 15, money: 30 }, // Nidoran Mâle
+      { pokemonId: 21, chance: 20, money: 20 }, // Piafabec
     ],
   },
   foret: {
@@ -95,10 +96,10 @@ const LEVELS = {
     encounterTable: [
       { pokemonId: 10, chance: 35, money: 10 }, // Chenipan
       { pokemonId: 13, chance: 30, money: 10 }, // Aspicot
-      { pokemonId: 25, chance: 2, money: 1200 }, // Pikachu
-      { pokemonId: 127, chance: 10, money: 200 }, // Scarabrute
-      { pokemonId: 143, chance: 3, money: 750 }, // Ronflex
-      { pokemonId: 123, chance: 3, money: 750 }, // Insécateur
+      { pokemonId: 25, chance: 2, money: 500 }, // Pikachu
+      { pokemonId: 127, chance: 10, money: 100 }, // Scarabrute
+      { pokemonId: 143, chance: 3, money: 350 }, // Ronflex
+      { pokemonId: 123, chance: 3, money: 300 }, // Insécateur
     ],
   },
   riviere: {
@@ -111,9 +112,8 @@ const LEVELS = {
     backgroundImage: "./img/riviere.jpg",
     cost: 1000,
     encounterTable: [
-      { pokemonId: 7, chance: 1, money: 2500 }, // Carapuce
-      { pokemonId: 54, chance: 2, money: 1000 }, // Psykokwak
-      { pokemonId: 60, chance: 10, money: 70 }, // Ptitard
+      { pokemonId: 7, chance: 1, money: 2000 }, // Carapuce
+      { pokemonId: 60, chance: 10, money: 60 }, // Ptitard
       { pokemonId: 129, chance: 35, money: 10 }, // Magicarpe
       { pokemonId: 79, chance: 15, money: 40 }, // Ramoloss
     ],
@@ -130,10 +130,10 @@ const LEVELS = {
     encounterTable: [
       { pokemonId: 41, chance: 30, money: 10 }, // Nosferapti
       { pokemonId: 74, chance: 30, money: 10 }, // Racaillou
-      { pokemonId: 95, chance: 5, money: 250 }, // Onix
-      { pokemonId: 46, chance: 15, money: 50 }, // Paras
-      { pokemonId: 35, chance: 2, money: 350 }, // Melofée
-      { pokemonId: 27, chance: 20, money: 40 }, // Sabelette
+      { pokemonId: 95, chance: 5, money: 150 }, // Onix
+      { pokemonId: 46, chance: 15, money: 40 }, // Paras
+      { pokemonId: 35, chance: 2, money: 200 }, // Melofée
+      { pokemonId: 27, chance: 20, money: 30 }, // Sabelette
     ],
   },
   plage: {
@@ -147,8 +147,8 @@ const LEVELS = {
     cost: 1500,
     encounterTable: [
       { pokemonId: 129, chance: 35, money: 10 }, // Magicarpe
-      { pokemonId: 118, chance: 25, money: 30 }, // Poissirène
-      { pokemonId: 116, chance: 15, money: 50 }, // hypotempe
+      { pokemonId: 118, chance: 25, money: 25 }, // Poissirène
+      { pokemonId: 116, chance: 10, money: 50 }, // hypotempe
     ],
   },
 };
