@@ -71,7 +71,7 @@ body {
 .cell {
     width: 60px;
     height: 60px;
-    background-color: #bbbbbba4;
+    background-color: #727272ef;
     border: 1px solid #999;
     display: flex;
     justify-content: center;
@@ -82,11 +82,11 @@ body {
 }
 
 .cell:hover{
-    background-color: #707070;
+    background-color: #a8a8a8;
 }
 
 .cell.revealed {
-    background-color: #eeeeeea1;
+    background-color: #eeeeee48;
     border: 1px solid #ccc;
     cursor: default;
 }
