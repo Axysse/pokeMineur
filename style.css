@@ -86,7 +86,7 @@ body {
 }
 
 .cell.revealed {
-    background-color: #eeeeee48;
+    background-color: #eeeeee91;
     border: 1px solid #ccc;
     cursor: default;
 }

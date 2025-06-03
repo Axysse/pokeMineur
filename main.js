@@ -18,7 +18,6 @@ let evolutionQueue = [];
 let titre;         
 let replayButton;  
 let gridElement;
-let saveGameBtn;
 let loadGameBtn;
 
 // Manque Rhinocrone, Evoli, Tauros, Amonita, kabuto, Ptera, Mewtwo, Mew
@@ -759,6 +758,7 @@ function showEvolutionModal(basePokemon, evolvedPokemon, evolutionRule) {
           "Modal fermée. Compteur de Pokéballs réinitialisé (pas de Pokéballs à ouvrir)."
         );
         processEvolutionQueue();
+        saveGame();
       }, 3000);
     }
   }
@@ -787,44 +787,85 @@ function loadGame() {
             const loadedState = JSON.parse(savedStateString);
             console.log("Game loaded:", loadedState);
 
-            // Charger les variables globales
             playerMoney = loadedState.playerMoney;
-            capturedPokemonIds = new Set(loadedState.capturedPokemonIds); // Reconvertir en Set
+            capturedPokemonIds = new Set(loadedState.capturedPokemonIds);
             capturedPokemonCounts = loadedState.capturedPokemonCounts;
 
-            // Mettre à jour l'interface utilisateur
-            playerMoneyElement.textContent = playerMoney; // Met à jour l'argent affiché
+            // NOUVEAU : Chargement des états de jeu et du niveau
+            currentLevel = LEVELS[loadedState.currentLevelId || "hautes-herbes"]; // Fallback au cas où l'ancienne sauvegarde n'ait pas le niveau
+            gameStarted = loadedState.gameStarted;
+            gameOver = loadedState.gameOver;
+
+            // Charger l'état de la grille si tu décides de le faire plus tard. Pour l'instant, on lance une nouvelle grille.
+            // Si tu ne sauvegardes pas la grille, le jeu commencera avec une nouvelle grille visuellement.
+            // Il faudrait appeler `startGame()` après le chargement pour avoir une grille prête.
+            // Mais si gameStarted est true, ce n'est pas une nouvelle partie.
+
+            // Il est important de créer une grille vide pour que les éléments existent si le jeu est chargé en cours.
+            createGrid(currentLevel.rows, currentLevel.cols);
+            allCells = document.querySelectorAll(".cell"); // Re-sélectionner toutes les cellules
+
+            // Si la partie était en cours lors de la sauvegarde, il faut recréer l'état visuel de la grille.
+            // Cependant, si tu ne sauvegardes pas `grid` elle-même, la grille sera vide.
+            // Pour l'instant, si tu charges, ça ne restaurera que l'argent et le Pokédex.
+            // Si `gameStarted` est `true` après le chargement, il faut empêcher de lancer `startGame()`
+            // qui effacerait la partie.
+
+            // Mise à jour de l'UI
+            playerMoneyElement.textContent = playerMoney;
+            pokeballNumberElement.innerHTML = pokeballNbr; // La pokeballNbr n'est pas sauvegardée ici, donc sera 0.
+                                                          // Si tu veux sauvegarder les pokeballs, ajoute-les à gameState.
+            titre.innerText = "Reprise de la partie..."; // Ajuster le titre
 
             // Mettre à jour le Pokédex visuel
-            // On doit parcourir tous les Pokémon pour mettre à jour leur état dans le Pokédex
             allPokemonData.forEach(pokemon => {
                 const pokedexImg = document.getElementById(`pokedex-sprite-${pokemon.id}`);
                 const pokedexName = document.getElementById(`pokedex-name-${pokemon.id}`);
                 const pokedexCount = document.getElementById(`pokedex-count-${pokemon.id}`);
 
                 if (capturedPokemonIds.has(pokemon.id)) {
-                    // Si le Pokémon est capturé, le "dégriser" et afficher son nom
                     if (pokedexImg) pokedexImg.classList.remove("grayscale");
                     if (pokedexName) pokedexName.textContent = pokemon.name;
                 } else {
-                    // Sinon, s'assurer qu'il est grisé et son nom masqué
                     if (pokedexImg) pokedexImg.classList.add("grayscale");
                     if (pokedexName) pokedexName.textContent = "???";
                 }
-                // Toujours mettre à jour le compteur, même si 0
                 if (pokedexCount) pokedexCount.textContent = capturedPokemonCounts[pokemon.id] || 0;
             });
 
-            // Une fois le chargement terminé, tu peux choisir de relancer le jeu
-            // ou de laisser le joueur cliquer sur "Rejouer"
-            // Pour l'instant, on se contente de mettre à jour l'état affiché
+            // Gérer l'état des boutons de niveau et replay
+            if (gameOver) {
+                replayButton.classList.remove("opacity-0", "pointer-events-none");
+                replayButton.classList.add("opacity-100", "pointer-events-auto");
+                toggleLevelSelectionButtons(true);
+            } else if (gameStarted) {
+                // Si la partie était en cours, désactiver les sélections de niveau
+                replayButton.classList.add("opacity-0", "pointer-events-none");
+                replayButton.classList.remove("opacity-100", "pointer-events-auto");
+                toggleLevelSelectionButtons(false);
+            } else { // Partie non commencée
+                replayButton.classList.add("opacity-0", "pointer-events-none");
+                replayButton.classList.remove("opacity-100", "pointer-events-auto");
+                toggleLevelSelectionButtons(true);
+            }
+
             showMessage("Partie chargée avec succès !", "success");
+
+            // Si la partie était en cours, tu devras peut-être ré-initialiser certains aspects
+            // qui ne sont pas sauvegardés (comme l'état visuel de la grille ou les événements de clic).
+            // Si tu ne sauvegardes pas la grille, le chargement ne restaurera que l'argent et le Pokédex.
+            // Dans ce cas, une nouvelle grille sera générée au premier clic si gameStarted est false.
+            // Si gameStarted est true, tu devras décider quoi faire avec la grille.
+            // Une solution simple est de forcer une nouvelle partie visuelle mais garder les stats.
+            // Ou de sauvegarder l'état de la grille aussi, comme dans mon exemple précédent.
         } else {
             showMessage("Aucune partie sauvegardée trouvée.", "info");
         }
     } catch (e) {
         console.error("Erreur lors du chargement de la partie:", e);
         showMessage("Erreur lors du chargement de la partie. Le fichier de sauvegarde est-il corrompu ?", "error");
+        // En cas d'erreur de chargement, réinitialiser le jeu à un état propre
+        startGame();
     }
 }
 
@@ -839,6 +880,7 @@ function loadGame() {
 
     toggleLevelSelectionButtons(true);
     openBalls(pokeballNbr);
+    saveGame();
   }
 
    function game_over() {
@@ -876,6 +918,7 @@ function loadGame() {
 
     toggleLevelSelectionButtons(true);
     showDefeatModal();
+    saveGame();
   }
 
    function createGrid(rows, cols) {
@@ -1114,7 +1157,7 @@ function loadGame() {
   playerMoneyElement = document.getElementById("playerMoney"); // NOUVEAU
   let completeNbr = 0;
   const complete = document.getElementById("complete");
-  saveGameBtn = document.getElementById("saveGameBtn");
+
   loadGameBtn = document.getElementById("loadGameBtn");
 
   const gameContentArticle = document.querySelector(
@@ -1222,7 +1265,6 @@ function loadGame() {
 
   startGame();
 
-   saveGameBtn.addEventListener("click", saveGame);
     loadGameBtn.addEventListener("click", loadGame);
 
   gridElement.addEventListener("click", (event) => {
