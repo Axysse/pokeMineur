@@ -18,6 +18,8 @@ let evolutionQueue = [];
 let titre;         
 let replayButton;  
 let gridElement;
+let saveGameBtn;
+let loadGameBtn;
 
 // Manque Rhinocrone, Evoli, Tauros, Amonita, kabuto, Ptera, Mewtwo, Mew
 
@@ -761,6 +763,71 @@ function showEvolutionModal(basePokemon, evolvedPokemon, evolutionRule) {
     }
   }
 
+  function saveGame() {
+    const gameState = {
+        playerMoney: playerMoney,
+        capturedPokemonIds: Array.from(capturedPokemonIds), // Convertir le Set en tableau pour le stockage
+        capturedPokemonCounts: capturedPokemonCounts,
+    };
+
+    try {
+        localStorage.setItem("pokemonMinesweeperSave", JSON.stringify(gameState));
+        showMessage("Partie sauvegardée avec succès !", "success");
+        console.log("Game saved:", gameState);
+    } catch (e) {
+        console.error("Erreur lors de la sauvegarde de la partie:", e);
+        showMessage("Erreur lors de la sauvegarde. Espace de stockage insuffisant ou problème navigateur.", "error");
+    }
+}
+
+function loadGame() {
+    try {
+        const savedStateString = localStorage.getItem("pokemonMinesweeperSave");
+        if (savedStateString) {
+            const loadedState = JSON.parse(savedStateString);
+            console.log("Game loaded:", loadedState);
+
+            // Charger les variables globales
+            playerMoney = loadedState.playerMoney;
+            capturedPokemonIds = new Set(loadedState.capturedPokemonIds); // Reconvertir en Set
+            capturedPokemonCounts = loadedState.capturedPokemonCounts;
+
+            // Mettre à jour l'interface utilisateur
+            playerMoneyElement.textContent = playerMoney; // Met à jour l'argent affiché
+
+            // Mettre à jour le Pokédex visuel
+            // On doit parcourir tous les Pokémon pour mettre à jour leur état dans le Pokédex
+            allPokemonData.forEach(pokemon => {
+                const pokedexImg = document.getElementById(`pokedex-sprite-${pokemon.id}`);
+                const pokedexName = document.getElementById(`pokedex-name-${pokemon.id}`);
+                const pokedexCount = document.getElementById(`pokedex-count-${pokemon.id}`);
+
+                if (capturedPokemonIds.has(pokemon.id)) {
+                    // Si le Pokémon est capturé, le "dégriser" et afficher son nom
+                    if (pokedexImg) pokedexImg.classList.remove("grayscale");
+                    if (pokedexName) pokedexName.textContent = pokemon.name;
+                } else {
+                    // Sinon, s'assurer qu'il est grisé et son nom masqué
+                    if (pokedexImg) pokedexImg.classList.add("grayscale");
+                    if (pokedexName) pokedexName.textContent = "???";
+                }
+                // Toujours mettre à jour le compteur, même si 0
+                if (pokedexCount) pokedexCount.textContent = capturedPokemonCounts[pokemon.id] || 0;
+            });
+
+            // Une fois le chargement terminé, tu peux choisir de relancer le jeu
+            // ou de laisser le joueur cliquer sur "Rejouer"
+            // Pour l'instant, on se contente de mettre à jour l'état affiché
+            showMessage("Partie chargée avec succès !", "success");
+        } else {
+            showMessage("Aucune partie sauvegardée trouvée.", "info");
+        }
+    } catch (e) {
+        console.error("Erreur lors du chargement de la partie:", e);
+        showMessage("Erreur lors du chargement de la partie. Le fichier de sauvegarde est-il corrompu ?", "error");
+    }
+}
+
     function game_won() {
     gameOver = true;
     titre.innerText = "Félicitations ! Vous avez trouvé tous les Pokémon !";
@@ -1047,6 +1114,8 @@ function showEvolutionModal(basePokemon, evolvedPokemon, evolutionRule) {
   playerMoneyElement = document.getElementById("playerMoney"); // NOUVEAU
   let completeNbr = 0;
   const complete = document.getElementById("complete");
+  saveGameBtn = document.getElementById("saveGameBtn");
+  loadGameBtn = document.getElementById("loadGameBtn");
 
   const gameContentArticle = document.querySelector(
     "#game-container > article"
@@ -1152,6 +1221,9 @@ function showEvolutionModal(basePokemon, evolvedPokemon, evolutionRule) {
   );
 
   startGame();
+
+   saveGameBtn.addEventListener("click", saveGame);
+    loadGameBtn.addEventListener("click", loadGame);
 
   gridElement.addEventListener("click", (event) => {
     const element = event.target.closest(".cell");

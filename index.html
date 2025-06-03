@@ -1,57 +1,104 @@
 <!DOCTYPE html>
 <html lang="fr">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PokeDémineur</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="stylesheet" href="style.css">
-</head>
+    <link rel="stylesheet" href="style.css" />
+  </head>
 
-<body class="flex flex-row items-center gap-8">
-    <section class="flex flex-col items-center border-2 rounded-xl border-blue-900 bg-red-700 w-[20%] h-[80vh] ml-2">
-        <div class="flex flex-col items-center h-[15%]">
-            <h2 class="text-2xl font-bold mt-2">Pokèdex</h2>
-            <p> complétion : <span class="text-2xl font-bold text-white" id="complete">0</span></p>
-            <p>Argent: <span class="text-2xl font-bold text-white" id="playerMoney">0</span> pokédollars</p>
-        </div>
-        <div class="border-t border-2 border-blue-800 h-[85%] w-[95%] rounded-xl mb-2 bg-gray-300 overflow-y-scroll" id="pokeList">
-
-        </div>
+  <body class="flex flex-row items-center gap-8">
+    <section
+      class="flex flex-col items-center border-2 rounded-xl border-blue-900 bg-red-700 w-[20%] h-[80vh] ml-2"
+    >
+      <div class="flex flex-col items-center h-[15%]">
+        <h2 class="text-2xl font-bold mt-2">Pokèdex</h2>
+        <p>
+          complétion :
+          <span class="text-2xl font-bold text-white" id="complete">0</span>
+        </p>
+        <p>
+          Argent:
+          <span class="text-2xl font-bold text-white" id="playerMoney">0</span>
+          pokédollars
+        </p>
+      </div>
+      <div class="flex justify-center mb-2 gap-4">
+        <button
+          id="saveGameBtn"
+          class="px-6 py-3 rounded-lg bg-green-600 text-white font-bold hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-all duration-200"
+        >
+          Sauvegarder
+        </button>
+        <button
+          id="loadGameBtn"
+          class="px-6 py-3 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200"
+        >
+          Charger
+        </button>
+      </div>
+      <div
+        class="border-t border-2 border-blue-800 h-[85%] w-[95%] rounded-xl mb-2 bg-gray-300 overflow-y-scroll"
+        id="pokeList"
+      ></div>
     </section>
     <section id="game-container" class="flex flex-col items-center gap-8">
-        <h1 class="text-2xl" id="titre">Démineur Pokèmon</h1>
-        <article class="flex max-md:flex-col flex-row max-md:items-center justify-center">
-            <div class="flex flex-col items-center gap-8 mr-32">
-                <div class="flex flex-row justify-center gap-2">
-                    <img class="w-12" src="img/ball.png">
-                    <p> x </p>
-                    <p id="pokeballNumber">0</p>
-                </div>
+      <h1 class="text-2xl" id="titre">Démineur Pokèmon</h1>
+      <article
+        class="flex max-md:flex-col flex-row max-md:items-center justify-center"
+      >
+        <div class="flex flex-col items-center gap-8 mr-32">
+          <div class="flex flex-row justify-center gap-2">
+            <img class="w-12" src="img/ball.png" />
+            <p>x</p>
+            <p id="pokeballNumber">0</p>
+          </div>
+        </div>
+        <div class="flex flex-col items-center gap-8">
+          <div id="grid"></div>
+          <button
+            id="replay"
+            class="p-1 bg-yellow-400 border-2 border-solid opacity-0 pointer-events-none transition-opacity duration-300 min-h-[52px]"
+          >
+            REJOUER ?
+          </button>
+        </div>
+        <div class="flex flex-col items-center gap-2 md:ml-24 mt-18 max-md:m-2">
+          <div class="flex flex-row text-xl">
+            <p>Pleins de pokéballs en vue!</p>
+          </div>
+          <p class="text-xl text-center">
+            Ramassez-en le plus possible. Attention aux vils Voltorbes <br />
+            qui se cachent parmi les boules!
+          </p>
+          <p class="text-xl text-center">
+            Mais prenez garde! Ces créatures fourbes et démoniaques peuvent
+            aussi <br />
+            se cacher derrière les chiffres  qui se cachent parmi les boules!
+          </p>
+          <p>Et attention aux oreilles.</p>
+          <div class="md:ml-24 mt-12 text-xl flex flex-col items-center">
+            <p>Aide:</p>
+            <p>Une case blanche = une case déjà validée, pas de risques.</p>
+            <div class="flex flex-row">
+              <p>Une</p>
+              <img class="w-12" src="img/ball.png" /> = soit une simple pokéball
+              soit un Voltorbe!
             </div>
-            <div class="flex flex-col items-center gap-8">
-                <div id="grid"></div>
-                <button id="replay" class="p-1 bg-yellow-400 border-2 border-solid opacity-0 pointer-events-none transition-opacity duration-300 min-h-[52px]">REJOUER ?</button>
+            <div class="flex flex-row">
+              <p>
+                Un chiffre sur une case représente le nombre de Voltorbe
+                adjacent à cette case parmi les 8 cases adjacentes.
+              </p>
             </div>
-            <div class="flex flex-col items-center gap-2 md:ml-24 mt-18 max-md:m-2">
-                <div class="flex flex-row text-xl">
-                    <p>Pleins de pokéballs en vue!</p> 
-                </div>
-                <p class="text-xl text-center">Ramassez-en le plus possible. Attention aux vils Voltorbes <br> qui se cachent parmi les boules! </p>
-                <p class="text-xl text-center">Mais prenez garde! Ces créatures fourbes et démoniaques peuvent aussi <br> se cacher derrière les chiffres  qui se cachent parmi les boules! </p>
-                <p>Et attention aux oreilles.</p>
-                <div class="md:ml-24 mt-12 text-xl flex flex-col items-center">
-                    <p>Aide:</p>
-                    <p>Une case blanche = une case déjà validée, pas de risques.</p>
-                    <div class="flex flex-row"><p>Une</p><img class="w-12" src="img/ball.png"> = soit une simple pokéball soit un Voltorbe! </div>
-                    <div class="flex flex-row"><p> Un chiffre sur une case représente le nombre de Voltorbe adjacent à cette case parmi les 8 cases adjacentes.</p></div>
-                    <p>Donc un chiffre sur une case grise peut-être un Voltobre caché!</p>
-                </div>
-            </div>
-        </article>
+            <p>
+              Donc un chiffre sur une case grise peut-être un Voltobre caché!
+            </p>
+          </div>
+        </div>
+      </article>
     </section>
     <script type="module" src="main.js"></script>
-</body>
-
+  </body>
 </html>
