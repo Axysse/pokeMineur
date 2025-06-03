@@ -28,7 +28,7 @@ const EVOLUTIONS = {
   16: { evolvesTo: 17, threshold: 30, moneyBonus: 50 }, // Roucool (16) évolue en Roucoups (17) après 50 captures
   17: { evolvesTo: 18, threshold: 3, moneyBonus: 250 }, // Roucoups (17) évolue en Roucarnage (18) après 70 captures
   52: { evolvesTo: 53, threshold: 40, moneyBonus: 200 }, // Miaouss évolue en Persian après 50 captures
-  129:{ evolvesTo: 130, threshold: 100, moneyBonus: 500 }, // Magicarpe évolue en Léviathor après 50 captures
+  129:{ evolvesTo: 130, threshold: 100, moneyBonus: 3000 }, // Magicarpe évolue en Léviathor après 50 captures
   56: { evolvesTo: 57, threshold: 40, moneyBonus: 400 }, // Férosinge évolue en Colossinge après 50 captures
   25: { evolvesTo: 26, threshold: 3, moneyBonus: 500 }, // Pikachu évolue en Raichu après 50 captures
   21: { evolvesTo: 22, threshold: 40, moneyBonus: 100 }, // Piafabec évolue en Rapasdepic après 50 captures
@@ -84,7 +84,7 @@ const EVOLUTIONS = {
   7: { evolvesTo: 8, threshold: 40, moneyBonus: 5000 }, // Carapuce évolue en Carabaffe après 50 captures
   8: { evolvesTo: 9, threshold: 40, moneyBonus: 9000 }, // Carabaffe évolue en Tortank après 50 captures
   50: { evolvesTo: 51, threshold: 40, moneyBonus: 150 }, // Taupikeur évolue en Triopikeur après 50 captures
-  77: { evolvesTo: 78, threshold: 40, moneyBonus: 2000 }, // Taupikeur évolue en Triopikeur après 50 captures
+  77: { evolvesTo: 78, threshold: 40, moneyBonus: 250 }, // Taupikeur évolue en Triopikeur après 50 captures
   84: { evolvesTo: 85, threshold: 40, moneyBonus: 350 }, // Doduo évolue en Dodrio après 50 captures
   109: { evolvesTo: 110, threshold: 40, moneyBonus: 1500 }, // Smogo évolue en Smogogo après 50 captures
   102: { evolvesTo: 103, threshold: 40, moneyBonus: 350 }, // Noeunoeuf évolue en Noadkoko après 50 captures
