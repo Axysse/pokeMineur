@@ -19,13 +19,15 @@ let titre;
 let replayButton;  
 let gridElement;
 
+// Manque Rhinocrone, Evoli, Tauros, Amonita, kabuto, Ptera, Mewtwo, Mew
+
 const EVOLUTIONS = {
   19: { evolvesTo: 20, threshold: 30, moneyBonus: 50 }, // Rattata (19) évolue en Rattatac (20) après 50 captures
   16: { evolvesTo: 17, threshold: 30, moneyBonus: 50 }, // Roucool (16) évolue en Roucoups (17) après 50 captures
   17: { evolvesTo: 18, threshold: 3, moneyBonus: 250 }, // Roucoups (17) évolue en Roucarnage (18) après 70 captures
   52: { evolvesTo: 53, threshold: 40, moneyBonus: 200 }, // Miaouss évolue en Persian après 50 captures
   129:{ evolvesTo: 130, threshold: 100, moneyBonus: 500 }, // Magicarpe évolue en Léviathor après 50 captures
-  56: { evolvesTo: 59, threshold: 40, moneyBonus: 300 }, // Férosinge évolue en Colossinge après 50 captures
+  56: { evolvesTo: 57, threshold: 40, moneyBonus: 400 }, // Férosinge évolue en Colossinge après 50 captures
   25: { evolvesTo: 26, threshold: 3, moneyBonus: 500 }, // Pikachu évolue en Raichu après 50 captures
   21: { evolvesTo: 22, threshold: 40, moneyBonus: 100 }, // Piafabec évolue en Rapasdepic après 50 captures
   10: { evolvesTo: 11, threshold: 30, moneyBonus: 50 }, // Chenipan évolue en Crysacier après 50 captures
@@ -44,7 +46,7 @@ const EVOLUTIONS = {
   61: { evolvesTo: 62, threshold: 3, moneyBonus: 1500 }, // tetarte évolue en Tartard après 50 captures
   74: { evolvesTo: 75, threshold: 40, moneyBonus: 60 }, // racaillou évolue en Gravalanch après 50 captures
   75: { evolvesTo: 76, threshold: 4, moneyBonus: 400 }, // Gravalanch évolue en Grolem après 50 captures
-  79: { evolvesTo: 80, threshold: 30, moneyBonus: 250 }, // Ramoloss évolue en Flagadoss après 50 captures
+  79: { evolvesTo: 80, threshold: 30, moneyBonus: 350 }, // Ramoloss évolue en Flagadoss après 50 captures
   118: { evolvesTo: 119, threshold: 40, moneyBonus: 230 }, // Poissireine évolue en Poissoroy après 50 captures
   116: { evolvesTo: 117, threshold: 30, moneyBonus: 500 }, // Hypotrempe évolue en Hyporoi après 50 captures
   63: { evolvesTo: 64, threshold: 30, moneyBonus: 1000 }, // Abra évolue en Kadabra après 50 captures
@@ -53,7 +55,7 @@ const EVOLUTIONS = {
   44: { evolvesTo: 45, threshold: 3, moneyBonus: 300 }, // Ortide évolue en Raflésia après 50 captures
   69: { evolvesTo: 70, threshold: 40, moneyBonus: 150 }, // Chétiflor évolue en Boustiflor après 50 captures
   70: { evolvesTo: 71, threshold: 3, moneyBonus: 300 }, // Boustiflor évolue en Empiflor après 50 captures
-  23: { evolvesTo: 24, threshold: 30, moneyBonus: 180 }, // Boustiflor évolue en Empiflor après 50 captures
+  23: { evolvesTo: 24, threshold: 30, moneyBonus: 180 }, // Abo évolue en Arbok après 50 captures
   90: { evolvesTo: 91, threshold: 40, moneyBonus: 150 }, // Kokiyas évolue en Crustabri après 50 captures
   98: { evolvesTo: 99, threshold: 40, moneyBonus: 150 }, // Krabby évolue en Krabboss après 50 captures
   72: { evolvesTo: 73, threshold: 40, moneyBonus: 175 }, // Tentacool évolue en Tentacruek après 50 captures
@@ -65,6 +67,25 @@ const EVOLUTIONS = {
   96: { evolvesTo: 97, threshold: 40, moneyBonus: 275 }, // Spoporifik évolue en Hypnomade après 50 captures
   100: { evolvesTo: 101, threshold: 40, moneyBonus: 450 }, // Voltorbe évolue en Electrode après 50 captures
   81: { evolvesTo: 82, threshold: 40, moneyBonus: 150 }, // Magnéti évolue en Magnéton après 50 captures
+  92: { evolvesTo: 93, threshold: 30, moneyBonus: 200 }, // Fantominus évolue en Spectrum après 50 captures
+  93: { evolvesTo: 94, threshold: 3, moneyBonus: 3000 }, // Spectrum évolue en Ectoplasma après 50 captures
+  104: { evolvesTo: 105, threshold: 40, moneyBonus: 1500 }, // Osselait évolue en Ossatueur après 50 captures
+  88: { evolvesTo: 89, threshold: 40, moneyBonus: 1350 }, // Tadmorv évolue en Grotadmorv après 50 captures
+  86: { evolvesTo: 87, threshold: 40, moneyBonus: 1500 }, // Otaria évolue en Lamantine après 50 captures
+  120: { evolvesTo: 121, threshold: 40, moneyBonus: 1750 }, // Otaria évolue en Lamantine après 50 captures
+  147: { evolvesTo: 148, threshold: 40, moneyBonus: 4000 }, // Minidraco évolue en Draco après 50 captures
+  148: { evolvesTo: 149, threshold: 3, moneyBonus: 8500 }, // Draco évolue en Dracolosse après 50 captures
+  4: { evolvesTo: 5, threshold: 40, moneyBonus: 5000 }, // Salamèche évolue en Reptincel après 50 captures
+  5: { evolvesTo: 6, threshold: 3, moneyBonus: 9000 }, // Reptincel évolue en Dracaufeu après 50 captures
+  1: { evolvesTo: 2, threshold: 40, moneyBonus: 5000 }, // Bulbizarre évolue en Herbizarre après 50 captures
+  2: { evolvesTo: 3, threshold: 3, moneyBonus: 9000 }, // Herbizarre évolue en Florizarre après 50 captures
+  7: { evolvesTo: 8, threshold: 40, moneyBonus: 5000 }, // Carapuce évolue en Carabaffe après 50 captures
+  8: { evolvesTo: 9, threshold: 40, moneyBonus: 9000 }, // Carabaffe évolue en Tortank après 50 captures
+  50: { evolvesTo: 51, threshold: 40, moneyBonus: 150 }, // Taupikeur évolue en Triopikeur après 50 captures
+  77: { evolvesTo: 78, threshold: 40, moneyBonus: 2000 }, // Taupikeur évolue en Triopikeur après 50 captures
+  84: { evolvesTo: 85, threshold: 40, moneyBonus: 350 }, // Doduo évolue en Dodrio après 50 captures
+  109: { evolvesTo: 110, threshold: 40, moneyBonus: 1500 }, // Smogo évolue en Smogogo après 50 captures
+  102: { evolvesTo: 103, threshold: 40, moneyBonus: 350 }, // Noeunoeuf évolue en Noadkoko après 50 captures
 };
 
 const LEVELS = {
@@ -90,9 +111,9 @@ const LEVELS = {
     minMines: 3, // Minimum de Voltorbes
     maxMines: 6, // Maximum de Voltorbes
     backgroundImage: "./img/road.jpg",
-    cost: 200,
+    cost: 125,
     encounterTable: [
-      { pokemonId: 1, chance: 1, money: 2000 }, // Bulbizarre
+      { pokemonId: 1, chance: 0.5, money: 2000 }, // Bulbizarre
       { pokemonId: 16, chance: 25, money: 10 }, // Roucool
       { pokemonId: 19, chance: 25, money: 10 }, // Ratata
       { pokemonId: 52, chance: 10, money: 40 }, // Miaouss
@@ -101,7 +122,7 @@ const LEVELS = {
       { pokemonId: 32, chance: 15, money: 30 }, // Nidoran Mâle
       { pokemonId: 21, chance: 20, money: 20 }, // Piafabec
       { pokemonId: 39, chance: 8, money: 45 }, // Rondoudou
-      { pokemonId: 63, chance: 2, money: 80 }, // Abra
+      { pokemonId: 63, chance: 1, money: 80 }, // Abra
     ],
   },
   foret: {
@@ -116,13 +137,13 @@ const LEVELS = {
     encounterTable: [
       { pokemonId: 10, chance: 25, money: 10 }, // Chenipan
       { pokemonId: 13, chance: 25, money: 10 }, // Aspicot
-      { pokemonId: 25, chance: 2, money: 500 }, // Pikachu
+      { pokemonId: 25, chance: 1, money: 500 }, // Pikachu
       { pokemonId: 127, chance: 10, money: 100 }, // Scarabrute
       { pokemonId: 143, chance: 3, money: 350 }, // Ronflex
       { pokemonId: 123, chance: 3, money: 300 }, // Insécateur
       { pokemonId: 43, chance: 15, money: 30 }, // Mystherbe
       { pokemonId: 69, chance: 15, money: 30 }, // Chétiflor
-      { pokemonId: 63, chance: 2, money: 80 }, // Abra
+      { pokemonId: 63, chance: 1, money: 80 }, // Abra
     ],
   },
   riviere: {
@@ -163,6 +184,7 @@ const LEVELS = {
       { pokemonId: 63, chance: 3, money: 80 }, // Abra
       { pokemonId: 143, chance: 3, money: 350 }, // Ronflex
       { pokemonId: 132, chance: 3, money: 125 }, // Métamorphe
+      { pokemonId: 50, chance: 20, money: 30 }, // Métamorphe
     ],
   },
   plage: {
@@ -219,13 +241,77 @@ const LEVELS = {
     encounterTable: [
       { pokemonId: 100, chance: 25, money: 1 }, // Voltorbe
       { pokemonId: 125, chance: 15, money: 30 }, // Elektek
-      { pokemonId: 145, chance: 0.1, money: 10000 }, // Electhor
-      { pokemonId: 137, chance: 5, money: 100 }, // Porygon
+      { pokemonId: 145, chance: 0.1, money: 15000 }, // Electhor
+      { pokemonId: 137, chance: 3, money: 100 }, // Porygon
       { pokemonId: 135, chance: 1, money: 1500 }, // Voltali
       { pokemonId: 132, chance: 3, money: 125 }, // Métamorphe
       { pokemonId: 122, chance: 10, money: 60 }, // M.Mime
       { pokemonId: 113, chance: 8, money: 100 }, // Leveinard
       { pokemonId: 81, chance: 25, money: 5 }, // Magnéti
+      { pokemonId: 25, chance: 2, money: 500 }, // Pikachu
+    ],
+  },
+    manoir: {
+    id: "manoir",
+    title: "Manoir",
+    rows: 10,
+    cols: 10,
+    minMines: 14,
+    maxMines: 16,
+    backgroundImage: "./img/manoir.jpg",
+    cost: 2500,
+    encounterTable: [
+      { pokemonId: 96, chance: 15, money: 50 }, // Soporifik
+      { pokemonId: 92, chance: 25, money: 10 }, // Fantominus
+      { pokemonId: 104, chance: 5, money: 80 }, // Osselait
+      { pokemonId: 105, chance: 1, money: 1000 }, // Osselait
+      { pokemonId: 132, chance: 3, money: 125 }, // Métamorphe
+      { pokemonId: 122, chance: 10, money: 60 }, // M.Mime
+      { pokemonId: 106, chance: 8, money: 70 }, // kicklee
+      { pokemonId: 107, chance: 8, money: 70 }, // Tygnon
+      { pokemonId: 57, chance: 5, money: 300 }, // Colossinge
+      { pokemonId: 88, chance: 10, money: 65 }, // Tadmorv
+    ],
+  },
+    iles: {
+    id: "iles",
+    title: "Iles",
+    rows: 10,
+    cols: 10,
+    minMines: 14,
+    maxMines: 16,
+    backgroundImage: "./img/iles.jpg",
+    cost: 2500,
+    encounterTable: [
+      { pokemonId: 86, chance: 15, money: 70 }, // Otaria
+      { pokemonId: 120, chance: 10, money: 80 }, // Stari
+      { pokemonId: 124, chance: 15, money: 60 }, // Lippoutou
+      { pokemonId: 134, chance: 1, money: 1500 }, // Aquali
+      { pokemonId: 144, chance: 0.1, money: 15000 }, // Artikodin
+      { pokemonId: 147, chance: 3, money: 500 }, // Minidraco
+      { pokemonId: 116, chance: 10, money: 50 }, // hypotrempe
+      { pokemonId: 117, chance: 2, money: 400 }, // hypocéan
+      { pokemonId: 80, chance: 5, money: 300 }, // Flagadoss
+    ],
+  },
+    volcan: {
+    id: "volcan",
+    title: "Volcan",
+    rows: 11,
+    cols: 11,
+    minMines: 40,
+    maxMines: 60,
+    backgroundImage: "./img/volcan.jpg",
+    cost: 3000,
+    encounterTable: [
+      { pokemonId: 4, chance: 1, money: 1500 }, // Salamèche
+      { pokemonId: 77, chance: 10, money: 100 }, // Ponyta
+      { pokemonId: 84, chance: 15, money: 60 }, // Doduo
+      { pokemonId: 126, chance: 5, money: 500 }, // Magmar
+      { pokemonId: 136, chance: 1, money: 1500 }, // Pyroli
+      { pokemonId: 146, chance: 0.1, money: 15000 }, // Sulfura
+      { pokemonId: 51, chance: 20, money: 70 }, // Triopikeur
+      { pokemonId: 109, chance: 15, money: 150 }, // Smogo
     ],
   },
 };
@@ -1076,7 +1162,6 @@ function showEvolutionModal(basePokemon, evolvedPokemon, evolutionRule) {
     if (!gameStarted) {
       gameStarted = true;
       toggleLevelSelectionButtons(false);
-      // Place les mines après le premier clic, en s'assurant que 'element' est sûr
       placeMines(currentLevel.rows, currentLevel.cols, Number(element.id));
 
       allCells = document.querySelectorAll(".cell");
@@ -1112,7 +1197,6 @@ function showEvolutionModal(basePokemon, evolvedPokemon, evolutionRule) {
       showMessage("BADABOOM ! C'était un Voltorbe !");
       game_over();
     } else {
-      // ... (le reste de votre logique pour une cellule sûre) ...
       element.classList.add("revealed");
       revealedSafeCellsCount++;
 
@@ -1145,15 +1229,8 @@ function showEvolutionModal(basePokemon, evolvedPokemon, evolutionRule) {
     }
   });
 
-// Renommez l'ancienne updatePokedexAfterEvolution qui mettait à jour le pokedex et déclenchait la suite
 // pour clarifier qu'elle gère les aspects visuels et l'ajout à la file, mais pas l'ouverture de la modal elle-même
 function updatePokedexAfterEvolutionVisuals(basePokemon, evolvedPokemon, evolutionRule) {
-    // Cette fonction contient maintenant ce qui était avant la mise à jour du Pokedex
-    // et l'ajout à la queue des prochaines évolutions.
-    // L'argent est déjà ajouté dans la fonction appelante (updatePokedexAfterEvolution)
-    // quand elle détecte une évolution.
-    // Donc, ici, on se concentre sur les aspects visuels et l'ajout à la queue.
-
     // Assurez-vous que le compteur est mis à jour si ce n'est pas déjà fait avant d'appeler ici
     // (normalement, il l'est déjà dans la fonction updatePokedexAfterEvolution d'où celle-ci est appelée)
     // Il est crucial que capturedPokemonCounts[evolvedPokemon.id] soit à jour ici.
