@@ -299,8 +299,8 @@ const LEVELS = {
     title: "Volcan",
     rows: 11,
     cols: 11,
-    minMines: 40,
-    maxMines: 60,
+    minMines: 30,
+    maxMines: 40,
     backgroundImage: "./img/volcan.jpg",
     cost: 3000,
     encounterTable: [
