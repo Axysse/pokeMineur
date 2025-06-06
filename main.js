@@ -1,6 +1,7 @@
 import { fetchPoke } from "./fetch.js";
 import { EVOLUTIONS, LEVELS } from "./config.js";
 import { openShopModal, SHOP_ITEMS } from './shop.js';
+import { openInventoryModal } from './inventory.js';
 
 let allPokemonData = [];
 let gameOver = false;
@@ -22,7 +23,10 @@ let replayButton;
 let gridElement;
 let loadGameBtn;
 let shopBtn;
-let playerInventory = {};
+let inventoryBtn;
+export let playerInventory = {};
+console.log("main.js: playerInventory initialisé:", playerInventory);
+
 
 let currentLevel = LEVELS["hautes-herbes"];
 
@@ -513,10 +517,11 @@ function loadGame() {
       const loadedState = JSON.parse(savedStateString);
       console.log("Game loaded:", loadedState);
 
-      playerMoney = loadedState.playerMoney;
+      playerMoney = loadedState.playerMoney || 0;
       capturedPokemonIds = new Set(loadedState.capturedPokemonIds);
       capturedPokemonCounts = loadedState.capturedPokemonCounts;
-        playerInventory = loadedState.playerInventory || {};
+      playerInventory = loadedState.playerInventory || {};
+      pokeballNbr = loadedState.pokeballNbr || 0;
 
       // NOUVEAU : Chargement des états de jeu et du niveau
       currentLevel = LEVELS[loadedState.currentLevelId || "hautes-herbes"]; // Fallback au cas où l'ancienne sauvegarde n'ait pas le niveau
@@ -719,6 +724,7 @@ function startGame() {
     currentLevel.title,
     "Attente du premier clic pour placer les Voltorbes."
   );
+
 }
 
 function toggleLevelSelectionButtons(enable) {
@@ -895,6 +901,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   loadGameBtn = document.getElementById("loadGameBtn");
   shopBtn = document.getElementById("shopBtn");
+  inventoryBtn = document.getElementById("inventoryBtn");
 
   const gameContentArticle = document.querySelector(
     "#game-container > article"
@@ -1005,7 +1012,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       shopBtn.addEventListener("click", () => {
         // Passe playerMoney, la fonction de mise à jour, showMessage et l'inventaire
-        openShopModal(playerMoney, showMessage, playerInventory);
+        openShopModal(playerMoney, showMessage, playerInventory, saveGame);
+    });
+
+        inventoryBtn.addEventListener("click", () => {
+        // Passe l'inventaire du joueur, showMessage et la fonction useItem pour gérer les effets
+        openInventoryModal(playerInventory, showMessage, useItem);
     });
 
   gridElement.addEventListener("click", (event) => {
@@ -1179,4 +1191,92 @@ function handleRightClick(event, row, col) {
     cellElement.style.backgroundPosition = "center";
     cellElement.classList.add("flagged"); // Ajoute une classe CSS si tu veux styliser les drapeaux
   }
+}
+
+function useItem(itemId) {
+      if (!playerInventory[itemId] || playerInventory[itemId] <= 0) {
+        showMessage("Vous n'avez plus de cet objet !", "error");
+        return false;
+    }
+
+    let itemUsedSuccessfully = false;
+    switch (itemId) {
+        case "reveal_safe_cell":
+            useRevealRiskyCellItem(); // Appelle la fonction qu'on vient de créer
+            break;
+        // ... autres cas pour d'autres objets
+        default:
+            console.warn(`Effet pour l'objet ${itemId} non implémenté.`);
+            showMessage("Cet objet n'a pas encore d'effet implémenté.", "warning");
+    }
+    // Décrémenter l'objet de l'inventaire APRES son effet
+    // Ou le faire directement dans la fonction d'effet si l'effet consomme l'objet
+    // playerInventory[itemId]--; // Si l'objet est à usage unique
+
+        if (itemUsedSuccessfully) {
+        playerInventory[itemId]--; // Décrémente la quantité si l'objet a été utilisé avec succès
+        saveGame();
+        return true;
+    }
+    return false; // L'objet n'a pas été utilisé
+}
+
+function useRevealRiskyCellItem() {
+    // Vérifier si le jeu est en cours
+    if (!gameStarted || gameOver) {
+        showMessage("Vous ne pouvez utiliser cet objet qu'en pleine partie.", "warning");
+        return false; // Indique que l'objet n'a pas été utilisé avec succès
+    }
+
+    // Vérifier si le joueur possède l'objet
+    if (!playerInventory["reveal_safe_cell"] || playerInventory["reveal_safe_cell"] <= 0) {
+        showMessage("Vous n'avez pas de Détekt Volt. !", "error");
+        return false;
+    }
+
+    // Trouver toutes les cellules non-révélées qui contiennent un Voltorbe
+    const unrevealedVoltorbeCells = [];
+    for (let r = 0; r < currentLevel.rows; r++) {
+        for (let c = 0; c < currentLevel.cols; c++) {
+            const cell = grid[r][c];
+            if (cell.status === "boom" && !cell.revealed) {
+                unrevealedVoltorbeCells.push({ row: r, col: c });
+            }
+        }
+    }
+
+    if (unrevealedVoltorbeCells.length === 0) {
+        showMessage("Aucun Voltorbe non-révélé à détecter !", "info");
+        return false;
+    }
+
+    // Choisir un Voltorbe aléatoire parmi ceux non-révélés
+    const randomIndex = Math.floor(Math.random() * unrevealedVoltorbeCells.length);
+    const chosenVoltorbe = unrevealedVoltorbeCells[randomIndex];
+    const cellId = chosenVoltorbe.row * currentLevel.cols + chosenVoltorbe.col;
+    const cellElement = document.getElementById(`${cellId}`);
+
+    if (cellElement) {
+        // Marquer la cellule comme révélée
+        grid[chosenVoltorbe.row][chosenVoltorbe.col].revealed = true;
+        cellElement.classList.add("revealed");
+
+        // Afficher l'image du Voltorbe
+        const voltorb = allPokemonData.find(p => p.id === 100);
+        const img = document.createElement("img");
+        img.src = voltorb ? voltorb.sprite : "./img/red_flag.png";
+        img.classList.add("w-full", "h-full"); // ou w-28 h-28 si c'est la taille standard pour les Voltorbes
+        cellElement.appendChild(img);
+
+        showMessage("Un Voltorbe a été détecté et révélé !", "success");
+
+        // Décrémenter l'objet de l'inventaire
+        playerInventory["reveal_safe_cell"]--;
+
+        return true; // Indique que l'objet a été utilisé avec succès
+    } else {
+        console.error("Élément de cellule Voltorbe non trouvé pour ID:", cellId);
+        showMessage("Erreur lors de la révélation du Voltorbe.", "error");
+        return false;
+    }
 }

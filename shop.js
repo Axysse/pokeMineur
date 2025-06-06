@@ -1,5 +1,3 @@
-import { showMessage } from "./main.js";
-
 export const SHOP_ITEMS = [
 // {
 //     id: "money_boost",
@@ -14,7 +12,7 @@ export const SHOP_ITEMS = [
     name: "Détekt Volt.",
     description:
       "Révèle un Voltorbe aléatoire (à utiliser pendant le jeu).",
-    cost: 250,
+    cost: 25,
     effect: "reveal_random_risky_cell", // Effet à gérer dans main.js
     icon: "./img/red_flag.png", // Icône de loupe
   },
@@ -85,25 +83,33 @@ export function openShopModal(playerMoney, updatePlayerMoney, showMessage, playe
     });
 }
 
-function handlePurchase(item, playerMoney, updatePlayerMoney, showMessage, playerInventory, updateModalMoneyDisplay) {
-    if (playerMoney >= item.cost) {
-        playerMoney -= item.cost;
-        updatePlayerMoney(playerMoney); // Met à jour l'argent dans main.js
-        updateModalMoneyDisplay(playerMoney); // Met à jour l'argent dans la modale
+function handlePurchase(item, playerMoneyRef, updateMoneyDisplayRef, showMessageRef, currentInventoryRef, updateModalMoneyDisplayRef, saveGameRef) {
+    // Tous les paramètres sont renommés avec 'Ref' pour s'assurer qu'on utilise bien les références passées
+    // et éviter les conflits de noms avec des variables globales inexistantes dans shop.js.
 
-        // Ajouter l'article à l'inventaire du joueur
-        // L'inventaire peut être un Map ou un objet simple dans main.js
-        if (playerInventory[item.id]) {
-            playerInventory[item.id]++;
+    // console.log("handlePurchase - currentInventoryRef BEFORE:", currentInventoryRef); // Pour le débogage
+
+    if (playerMoneyRef >= item.cost) {
+        playerMoneyRef -= item.cost;
+
+        // Mise à jour de l'inventaire référé (c'est l'objet global de main.js)
+        if (currentInventoryRef[item.id]) { // <--- LIGNE CULPABLE PRÉSUMÉE : doit utiliser currentInventoryRef
+            currentInventoryRef[item.id]++;
         } else {
-            playerInventory[item.id] = 1;
+            currentInventoryRef[item.id] = 1;
         }
 
-        showMessage(`Vous avez acheté "${item.name}" !`, "success");
-        console.log("Inventaire du joueur:", playerInventory);
-        // Ici, tu pourrais aussi déclencher une sauvegarde du jeu pour que l'inventaire soit persistant.
-        // saveGame(); // Si saveGame est accessible globalement ou importée
+        updateMoneyDisplayRef(playerMoneyRef); // Mise à jour de l'affichage global de l'argent dans main.js
+        updateModalMoneyDisplayRef(playerMoneyRef); // Mise à jour de l'affichage de l'argent dans la modale
+        showMessageRef(`Vous avez acheté "${item.name}" !`, "success");
+
+        // Sauvegarde l'état du jeu après l'achat
+        if (saveGameRef) {
+            saveGameRef();
+        }
+        return true; // Indique que l'achat a réussi
     } else {
-        showMessage("Pas assez de PokéDollars pour acheter cet article.", "error");
+        showMessageRef("Vous n'avez pas assez d'argent !", "error");
+        return false;
     }
 }
