@@ -15,6 +15,7 @@ import { showMessage } from './main.js';
  * @param {function} useItemCallback - La fonction à appeler quand un joueur utilise un objet.
  */
 export function openInventoryModal(playerInventory, showMessage, useItemCallback) {
+    console.log("inventory.js - openInventoryModal - playerInventory received:", playerInventory);
     const modal = document.createElement("div");
     modal.classList.add("inventory-modal", "fixed", "inset-0", "bg-gray-800", "bg-opacity-75", "flex", "items-center", "justify-center", "z-50", "p-4", "hidden");
     modal.innerHTML = `

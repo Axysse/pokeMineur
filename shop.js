@@ -1,39 +1,38 @@
 export const SHOP_ITEMS = [
-// {
-//     id: "money_boost",
-//     name: "Boost de PokéDollars",
-//     description: "Double vos gains pour la prochaine partie.",
-//     cost: 500,
-//     effect: "double_next_money", // Effet à gérer dans main.js
-//     icon: "./img/money_bag.png", // Icône pour l'argent
-//   },
-  {
-    id: "reveal_safe_cell",
-    name: "Détekt Volt.",
-    description:
-      "Révèle un Voltorbe aléatoire (à utiliser pendant le jeu).",
-    cost: 25,
-    effect: "reveal_random_risky_cell", // Effet à gérer dans main.js
-    icon: "./img/red_flag.png", // Icône de loupe
-  },
+    // {
+    //     id: "money_boost",
+    //     name: "Boost de PokéDollars",
+    //     description: "Double vos gains pour la prochaine partie.",
+    //     cost: 500,
+    //     effect: "double_next_money",
+    //     icon: "./img/money_bag.png",
+    // },
+    {
+        id: "reveal_safe_cell",
+        name: "Détekt Volt.",
+        description: "Révèle un Voltorbe aléatoire (à utiliser pendant le jeu).",
+        cost: 25,
+        effect: "reveal_random_risky_cell",
+        icon: "./img/red_flag.png",
+    },
 ];
 
-export function openShopModal(playerMoney, updatePlayerMoney, showMessage, playerInventory) {
-    // playerMoney: argent actuel du joueur
-    // updatePlayerMoney: fonction pour mettre à jour l'affichage de l'argent dans main.js
-    // showMessage: fonction pour afficher des messages
-    // playerInventory: l'objet ou le Map qui gère l'inventaire du joueur
-
+// openShopModal doit maintenant accepter deux fonctions pour gérer l'argent
+// et l'inventaire est toujours la référence directe.
+export function openShopModal(
+    getPlayerMoneyFunc,         // NOUVEAU: Fonction pour obtenir l'argent global (de main.js)
+    setPlayerMoneyFunc,         // NOUVEAU: Fonction pour définir l'argent global et son affichage (dans main.js)
+    showMessage,
+    playerInventoryRef,         // L'inventaire, qui est déjà passé par référence (correct)
+    globalUpdateCallback        // La fonction pour sauvegarder tout l'état (updateGameVariablesAndSave)
+) {
     const modal = document.createElement("div");
     modal.classList.add("shop-modal", "fixed", "inset-0", "bg-gray-800", "bg-opacity-75", "flex", "items-center", "justify-center", "z-50", "p-4", "hidden");
     modal.innerHTML = `
         <div class="shop-modal-content bg-white p-6 rounded-lg shadow-xl text-center max-w-4xl w-full flex flex-col">
             <h2 class="text-3xl font-bold mb-6 text-gray-800">Boutique Pokémon</h2>
-            <p class="text-xl font-semibold mb-4 text-yellow-600">Vos PokéDollars : <span id="shop-player-money">${playerMoney}</span> ₽</p>
-
-            <div id="shop-items-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto max-h-96 pb-4">
-                </div>
-
+            <p class="text-xl font-semibold mb-4 text-yellow-600">Vos PokéDollars : <span id="shop-player-money">${getPlayerMoneyFunc()}</span> ₽</p>
+            <div id="shop-items-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto max-h-96 pb-4"></div>
             <button id="closeShopModalBtn" class="mt-6 px-8 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200">Fermer la Boutique</button>
         </div>
     `;
@@ -42,7 +41,7 @@ export function openShopModal(playerMoney, updatePlayerMoney, showMessage, playe
     const shopItemsContainer = document.getElementById("shop-items-container");
     const shopPlayerMoneyElement = document.getElementById("shop-player-money");
 
-    // Fonction pour mettre à jour l'affichage de l'argent dans la modale
+    // Fonction pour mettre à jour l'affichage de l'argent DANS LA MODALE
     const updateModalMoneyDisplay = (newMoney) => {
         shopPlayerMoneyElement.textContent = newMoney;
     };
@@ -65,7 +64,16 @@ export function openShopModal(playerMoney, updatePlayerMoney, showMessage, playe
 
         const buyButton = itemCard.querySelector(".buy-item-btn");
         buyButton.addEventListener("click", () => {
-            handlePurchase(item, playerMoney, updatePlayerMoney, showMessage, playerInventory, updateModalMoneyDisplay);
+            // Passe maintenant les fonctions getter/setter pour l'argent
+            handlePurchase(
+                item,
+                getPlayerMoneyFunc,         // Passe la fonction getter de l'argent
+                setPlayerMoneyFunc,         // Passe la fonction setter de l'argent
+                showMessage,
+                playerInventoryRef,         // L'inventaire
+                updateModalMoneyDisplay,    // Met à jour l'argent dans la modale
+                globalUpdateCallback        // Le callback final pour `updateGameVariablesAndSave`
+            );
         });
     });
 
@@ -78,38 +86,46 @@ export function openShopModal(playerMoney, updatePlayerMoney, showMessage, playe
     // Gérer la fermeture de la modale
     document.getElementById("closeShopModalBtn").addEventListener("click", () => {
         modal.classList.remove("opacity-100");
-        modal.classList.add("opacity-0"); // Ajoute une transition de fondu
-        setTimeout(() => modal.remove(), 300); // Supprime après la transition
+        modal.classList.add("opacity-0");
+        setTimeout(() => modal.remove(), 300);
     });
 }
 
-function handlePurchase(item, playerMoneyRef, updateMoneyDisplayRef, showMessageRef, currentInventoryRef, updateModalMoneyDisplayRef, saveGameRef) {
-    // Tous les paramètres sont renommés avec 'Ref' pour s'assurer qu'on utilise bien les références passées
-    // et éviter les conflits de noms avec des variables globales inexistantes dans shop.js.
+function handlePurchase(
+    item,
+    getPlayerMoneyFunc,         // NOUVEAU: Fonction pour obtenir l'argent
+    setPlayerMoneyFunc,         // NOUVEAU: Fonction pour définir l'argent
+    showMessageRef,
+    currentInventoryRef,
+    updateModalMoneyDisplayRef,
+    globalUpdateCallback
+) {
+    // Obtient la valeur la plus récente de l'argent depuis main.js
+    const currentGlobalMoney = getPlayerMoneyFunc();
 
-    // console.log("handlePurchase - currentInventoryRef BEFORE:", currentInventoryRef); // Pour le débogage
+    if (currentGlobalMoney >= item.cost) {
+        const newMoney = currentGlobalMoney - item.cost; // Calcule le nouvel argent
 
-    if (playerMoneyRef >= item.cost) {
-        playerMoneyRef -= item.cost;
-
-        // Mise à jour de l'inventaire référé (c'est l'objet global de main.js)
-        if (currentInventoryRef[item.id]) { // <--- LIGNE CULPABLE PRÉSUMÉE : doit utiliser currentInventoryRef
+        // Met à jour l'inventaire (toujours par référence, c'est bon)
+        if (currentInventoryRef[item.id]) {
             currentInventoryRef[item.id]++;
         } else {
             currentInventoryRef[item.id] = 1;
         }
 
-        updateMoneyDisplayRef(playerMoneyRef); // Mise à jour de l'affichage global de l'argent dans main.js
-        updateModalMoneyDisplayRef(playerMoneyRef); // Mise à jour de l'affichage de l'argent dans la modale
-        showMessageRef(`Vous avez acheté "${item.name}" !`, "success");
+        // Met à jour l'argent global via la fonction setter de main.js
+        setPlayerMoneyFunc(newMoney);
+        // Met à jour l'affichage de l'argent DANS LA MODALE
+        updateModalMoneyDisplayRef(newMoney);
 
-        // Sauvegarde l'état du jeu après l'achat
-        if (saveGameRef) {
-            saveGameRef();
-        }
+        // showMessageRef(`Vous avez acheté "${item.name}" !`, "success");
+
+        // Appelle le callback final dans main.js pour sauvegarder l'état complet
+        globalUpdateCallback(newMoney, currentInventoryRef); // Passe le nouvel argent et l'inventaire mis à jour
+
         return true; // Indique que l'achat a réussi
     } else {
-        showMessageRef("Vous n'avez pas assez d'argent !", "error");
+        // showMessageRef("Vous n'avez pas assez d'argent !", "error");
         return false;
     }
 }
