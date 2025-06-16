@@ -14,8 +14,15 @@ import { showMessage } from './main.js';
  * @param {function} showMessage - La fonction pour afficher des messages au joueur.
  * @param {function} useItemCallback - La fonction à appeler quand un joueur utilise un objet.
  */
-export function openInventoryModal(playerInventory, showMessage, useItemCallback) {
+export function openInventoryModal(playerInventory, showMessage, useItemCallback, updateInventoryUIRef) {
     console.log("inventory.js - openInventoryModal - playerInventory received:", playerInventory);
+
+    // Si la modale existe déjà, la supprimer avant de la recréer pour s'assurer de sa fraîcheur
+    const existingModal = document.querySelector(".inventory-modal");
+    if (existingModal) {
+        existingModal.remove();
+    }
+
     const modal = document.createElement("div");
     modal.classList.add("inventory-modal", "fixed", "inset-0", "bg-gray-800", "bg-opacity-75", "flex", "items-center", "justify-center", "z-50", "p-4", "hidden");
     modal.innerHTML = `
@@ -23,7 +30,7 @@ export function openInventoryModal(playerInventory, showMessage, useItemCallback
             <h2 class="text-3xl font-bold mb-6 text-gray-800">Votre Inventaire</h2>
 
             <div id="inventory-items-container" class="grid grid-cols-1 md:grid-cols-2 gap-6 overflow-y-auto max-h-96 pb-4">
-                </div>
+            </div>
 
             <button id="closeInventoryModalBtn" class="mt-6 px-8 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200">Fermer l'Inventaire</button>
         </div>
@@ -63,17 +70,14 @@ export function openInventoryModal(playerInventory, showMessage, useItemCallback
                 const useButton = itemCard.querySelector(".use-item-btn");
                 useButton.addEventListener("click", () => {
                     // Appelle le callback fourni par main.js pour gérer l'effet de l'objet
+                    // useItemCallback est la fonction `useItem` de main.js
                     if (useItemCallback(itemId)) { // Si l'utilisation est réussie
-                        playerInventory[itemId]--; // Décrémente la quantité
-                        // Met à jour la quantité affichée dans la modale
-                        itemCard.querySelector(".item-quantity").textContent = playerInventory[itemId];
-                        if (playerInventory[itemId] <= 0) {
-                            itemCard.remove(); // Supprime la carte si la quantité est à zéro
-                            // Si plus aucun objet, affiche un message
-                            if (Object.values(playerInventory).every(q => q <= 0)) {
-                                inventoryItemsContainer.innerHTML = '<p class="text-gray-600 text-center text-lg col-span-full">Votre inventaire est vide.</p>';
-                            }
-                        }
+                        // IMPORTANT: La décrémentation et la sauvegarde se font dans main.js (`useItem` -> `useRevealRiskyCellItem` -> `updateGameVariablesAndSave`)
+                        // Ici, on informe simplement la UI de l'inventaire qu'elle doit se rafraîchir.
+                        updateInventoryUIRef(); // <--- APPEL CLÉ POUR RAFRAÎCHIR L'AFFICHAGE DE L'INVENTAIRE
+                        // Il n'y a plus besoin de décrémenter playerInventory[itemId]-- ici,
+                        // ni de mettre à jour itemCard.querySelector(".item-quantity").textContent,
+                        // car `updateInventoryUIRef` va recréer entièrement la modale avec les bonnes valeurs.
                     }
                 });
             } else {
@@ -85,7 +89,6 @@ export function openInventoryModal(playerInventory, showMessage, useItemCallback
     if (!hasItems) {
         inventoryItemsContainer.innerHTML = '<p class="text-gray-600 text-center text-lg col-span-full">Votre inventaire est vide.</p>';
     }
-
 
     // Afficher la modale avec une légère transition
     setTimeout(() => {

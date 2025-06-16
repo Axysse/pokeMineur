@@ -73,8 +73,8 @@ export const LEVELS = {
     title: "Hautes-herbes",
     rows: 5,
     cols: 5,
-    minMines: 0, // Minimum de Voltorbes
-    maxMines: 0, // Maximum de Voltorbes
+    minMines: 2, // Minimum de Voltorbes
+    maxMines: 3, // Maximum de Voltorbes
     backgroundImage: "./img/grass.jpg",
     cost: 0,
     encounterTable: [

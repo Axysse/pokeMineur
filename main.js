@@ -9,7 +9,7 @@ let gameOver = false;
 let gameStarted = false;
 let safeCellsToReveal = 0;
 let revealedSafeCellsCount = 0;
-let grid;
+let grid = [];
 let pokeballNumberElement;
 let pokeballNbr = 0;
 let allCells;
@@ -709,6 +709,8 @@ function createGrid(rows, cols) {
         isRevealed: false,
         isFlagged: false,
         minesAround: 0,
+        status: "hidden",      // Initialisation, sera 'boom' ou 'safe' par placeMines
+        revealedByItem: false 
       })
     );
   renderGrid(rows, cols);
@@ -782,6 +784,7 @@ function placeMines(rows, cols, clickedCellId) {
     Math.floor(
       Math.random() * (currentLevel.maxMines - currentLevel.minMines + 1)
     ) + currentLevel.minMines;
+    console.log("DEBUG: Nombre de Voltorbes calculés pour ce niveau:", minesToPlace); // <-- NOUVEAU LOG ICI
   const minePositions = new Set();
 
   const forbiddenPositions = new Set();
@@ -795,14 +798,25 @@ function placeMines(rows, cols, clickedCellId) {
     }
   }
 
-  for (let i = 0; i < totalCells; i++) {
-    const cell = document.getElementById(i); // Récupère la cellule par son ID
-    if (minePositions.has(i)) {
-      cell.setAttribute("status", "boom");
-    } else {
-      cell.setAttribute("status", "safe");
+for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            const cellId = r * cols + c; // Calcule l'ID unique de la cellule
+            const cellElement = document.getElementById(cellId); // Récupère l'élément DOM
+
+            // Récupère l'objet cellule JavaScript correspondant dans ta grille
+            const jsCellObject = grid[r][c]; // <--- Assure-toi que 'grid' est accessible ici
+
+            if (minePositions.has(cellId)) {
+                // Si cette position contient une mine, marque l'élément DOM ET l'objet JS
+                cellElement.setAttribute("status", "boom");
+                jsCellObject.status = "boom"; // <--- AJOUT CRUCIAL : Met à jour l'objet JS !
+            } else {
+                // Si c'est une cellule sûre
+                cellElement.setAttribute("status", "safe");
+                jsCellObject.status = "safe"; // <--- AJOUT CRUCIAL : Met à jour l'objet JS !
+            }
+        }
     }
-  }
   console.log(`Nombre de Voltorbes placés pour ce niveau: ${minesToPlace}`);
 }
 
@@ -1074,7 +1088,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         inventoryBtn.addEventListener("click", () => {
         console.log("main.js - inventoryBtn click - playerInventory avant openInventoryModal:", playerInventory);
-        openInventoryModal(playerInventory, showMessage, useItem);
+        openInventoryModal(playerInventory, showMessage, useItem, updateInventoryUI);
     });
 
   gridElement.addEventListener("click", (event) => {
@@ -1278,11 +1292,38 @@ function useItem(itemId) {
     return false; // L'objet n'a pas été utilisé
 }
 
+export function updateInventoryUI() {
+    // Supprime l'ancienne modale d'inventaire si elle existe pour la recréer
+    // (C'est souvent le plus simple si l'inventaire est recréé dynamiquement)
+    const existingModal = document.querySelector(".inventory-modal");
+    if (existingModal) {
+        existingModal.remove();
+    }
+    // Recrée la modale avec les données à jour
+    // Tu devras peut-être passer playerInventory et showMessage ici aussi
+    openInventoryModal(playerInventory, showMessage, useItem, updateInventoryUI); // Assure-toi que c'est bien la fonction pour ouvrir/mettre à jour l'inventaire
+    // Si openInventoryModal ne rafraîchit pas tout, tu as peut-être un conteneur spécifique
+    // où tu listes les items. Mets à jour ce conteneur ici.
+    // Exemple (si tu as un élément spécifique pour l'inventaire) :
+    // const inventoryDisplayElement = document.getElementById("inventory-display");
+    // if (inventoryDisplayElement) {
+    //     inventoryDisplayElement.innerHTML = ''; // Vide l'ancien contenu
+    //     for (const itemId in playerInventory) {
+    //         if (playerInventory[itemId] > 0) {
+    //             // Crée un élément pour chaque item et l'ajoute
+    //             const itemElement = document.createElement('div');
+    //             itemElement.textContent = `${itemId}: ${playerInventory[itemId]}`;
+    //             inventoryDisplayElement.appendChild(itemElement);
+    //         }
+    //     }
+    // }
+}
+
 function useRevealRiskyCellItem() {
     // Vérifier si le jeu est en cours
     if (!gameStarted || gameOver) {
         showMessage("Vous ne pouvez utiliser cet objet qu'en pleine partie.", "warning");
-        return false; // Indique que l'objet n'a pas été utilisé avec succès
+        return false;
     }
 
     // Vérifier si le joueur possède l'objet
@@ -1296,11 +1337,13 @@ function useRevealRiskyCellItem() {
     for (let r = 0; r < currentLevel.rows; r++) {
         for (let c = 0; c < currentLevel.cols; c++) {
             const cell = grid[r][c];
-            if (cell.status === "boom" && !cell.revealed) {
+            // >>> LA LIGNE CLÉ : AJOUT DE && !cell.revealedByItem <<<
+            if (cell.status === "boom" && !cell.revealedByItem) { // MODIFICATION : on cherche des Voltorbes non révélés par l'objet
                 unrevealedVoltorbeCells.push({ row: r, col: c });
             }
         }
     }
+    console.log("DEBUG: Voltorbes non-révélés trouvés pour l'objet :", unrevealedVoltorbeCells); // Garde ce log
 
     if (unrevealedVoltorbeCells.length === 0) {
         showMessage("Aucun Voltorbe non-révélé à détecter !", "info");
@@ -1314,15 +1357,24 @@ function useRevealRiskyCellItem() {
     const cellElement = document.getElementById(`${cellId}`);
 
     if (cellElement) {
-        // Marquer la cellule comme révélée
-        grid[chosenVoltorbe.row][chosenVoltorbe.col].revealed = true;
+        // Marquer la cellule comme révélée visuellement
+        // Attention: NE PAS mettre `revealed = true` ici si tu veux que l'objet puisse le trouver plusieurs fois
+        // On va plutôt se baser sur `revealedByItem` pour le filtrage de l'objet.
+        // Si tu mets `revealed = true` ici, alors le `!cell.revealed` de ton autre logique de jeu (clic normal)
+        // ne verra plus cette cellule comme non-révélée.
+        // Si l'objet DOIT marquer la cellule comme révélée pour l'affichage, c'est ok.
+        // Mais pour la recherche par l'objet lui-même, on utilise revealedByItem.
+        grid[chosenVoltorbe.row][chosenVoltorbe.col].revealed = true; // Garde ceci pour l'affichage visuel général
+        grid[chosenVoltorbe.row][chosenVoltorbe.col].revealedByItem = true; // <-- C'EST ÇA QUI EMPÊCHERA LES FUTURES DÉTECTIONS PAR L'OBJET
+
         cellElement.classList.add("revealed");
+        cellElement.classList.add("revealed-by-item"); // Ajoute cette classe pour un style distinctif si tu veux
 
         // Afficher l'image du Voltorbe
         const voltorb = allPokemonData.find(p => p.id === 100);
         const img = document.createElement("img");
-        img.src = voltorb ? voltorb.sprite : "./img/red_flag.png";
-        img.classList.add("w-full", "h-full"); // ou w-28 h-28 si c'est la taille standard pour les Voltorbes
+        img.src = voltorb ? voltorb.sprite : "./img/ball_voltorbe.png"; // Assure-toi d'avoir la bonne image de Voltorbe ici
+        img.classList.add("w-full", "h-full", "object-contain"); // Ajout de object-contain pour éviter la déformation
         cellElement.appendChild(img);
 
         showMessage("Un Voltorbe a été détecté et révélé !", "success");
@@ -1330,7 +1382,9 @@ function useRevealRiskyCellItem() {
         // Décrémenter l'objet de l'inventaire
         playerInventory["reveal_safe_cell"]--;
 
-        return true; // Indique que l'objet a été utilisé avec succès
+        updateGameVariablesAndSave(playerMoney, playerInventory); // Appelle votre fonction de sauvegarde globale
+
+        return true;
     } else {
         console.error("Élément de cellule Voltorbe non trouvé pour ID:", cellId);
         showMessage("Erreur lors de la révélation du Voltorbe.", "error");
