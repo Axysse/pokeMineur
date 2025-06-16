@@ -630,7 +630,7 @@ function loadGame() {
                     return cell;
                 }));
                  // Après avoir restauré la grille, tu dois aussi potentiellement mettre à jour `isFirstClick`
-                isFirstClick = false; // Si une partie est chargée, ce n'est plus le premier clic
+                
             }
             // Si la partie est chargée et en cours, tu n'as PAS besoin de `startGame()`
             // `startGame()` est pour initialiser une NOUVELLE partie propre.
@@ -652,6 +652,58 @@ function loadGame() {
         showMessage("Erreur de chargement. Une nouvelle partie a été commencée.", "error");
         return false; // Échec du chargement
     }
+}
+
+function resetGame() {
+    // Demande une confirmation à l'utilisateur car cette action est irréversible
+    if (!confirm("Êtes-vous sûr de vouloir commencer une NOUVELLE PARTIE ? Toutes vos données sauvegardées (argent, inventaire, Pokédex) seront EFFACÉES DÉFINITIVEMENT !")) {
+        return; // Si l'utilisateur annule, on ne fait rien
+    }
+
+    console.log("Début de la réinitialisation complète du jeu.");
+
+    // 1. Supprimer toutes les données du localStorage liées au jeu
+    // C'est CRUCIAL pour effacer la sauvegarde persistante
+    localStorage.removeItem("playerMoney");
+    localStorage.removeItem("playerInventory");
+    localStorage.removeItem("capturedPokemonCounts");
+    localStorage.removeItem("capturedPokemonIds");
+    localStorage.removeItem("gameSaveState"); // Si tu as une sauvegarde globale
+
+    // 2. Réinitialiser les variables globales du jeu à leurs valeurs par défaut
+    // Assure-toi que ces valeurs correspondent à celles d'un début de partie.
+    playerMoney = 0; // Ou toute autre valeur initiale
+    playerInventory = {}; // Inventaire vide
+    capturedPokemonCounts = {}; // Compteurs de Pokémon à zéro
+    capturedPokemonIds = new Set(); // Pokédex vide (tous grisés)
+
+    // Optionnel : Réinitialiser le niveau par défaut si tu veux que chaque nouvelle partie commence au même endroit
+    currentLevel = LEVELS["hautes-herbes"]; // Remet au niveau initial si ce n'est pas le cas
+
+    // 3. Mettre à jour l'affichage des éléments réinitialisés
+    playerMoneyElement.textContent = playerMoney;
+    pokeballNumberElement.innerHTML = 0; // Réinitialise le compteur de pokeballs de la partie en cours
+    titre.innerText = "Trouvez tous les Pokémon !"; // Réinitialise le titre
+
+    // 4. Mettre à jour le Pokédex visuellement
+    // Parcourir tous les éléments du Pokédex pour les remettre à l'état "non découvert"
+    allPokemonData.forEach(pokemon => {
+        const pokeImg = document.getElementById(`pokedex-sprite-${pokemon.id}`);
+        const pokeName = document.getElementById(`pokedex-name-${pokemon.id}`);
+        const pokeCount = document.getElementById(`pokedex-count-${pokemon.id}`);
+
+        if (pokeImg) pokeImg.classList.add("grayscale");
+        if (pokeName) pokeName.textContent = "???";
+        if (pokeCount) pokeCount.textContent = 0;
+    });
+    console.log("Pokédex visuellement réinitialisé.");
+
+    // 5. Appeler startGame() pour préparer une nouvelle grille et lancer une partie
+    // startGame() contient déjà la logique pour réinitialiser la grille, les compteurs de partie, etc.
+    startGame();
+
+    showMessage("Une nouvelle partie a commencé ! Vos anciennes données ont été effacées.", "success");
+    console.log("Jeu complètement réinitialisé. Nouvelle partie lancée.");
 }
 
 // --- NOUVELLE FONCTION POUR INITIALISER L'ÉTAT DU JEU LORS D'UNE NOUVELLE PARTIE OU D'UN ÉCHEC DE CHARGEMENT ---
@@ -1040,6 +1092,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   playerMoneyElement = document.getElementById("playerMoney"); // NOUVEAU
   let completeNbr = 0;
   const complete = document.getElementById("complete");
+   const newGameButton = document.getElementById("newGameButton");
+
 
   loadGameBtn = document.getElementById("loadGameBtn");
   shopBtn = document.getElementById("shopBtn");
@@ -1052,6 +1106,9 @@ document.addEventListener("DOMContentLoaded", async () => {
    
   const gameLoadedSuccessfully = loadGame(); // Appelle loadGame()
 
+      if (newGameButton) {
+        newGameButton.addEventListener("click", resetGame);
+    }
   if (!gameLoadedSuccessfully) {
         currentLevel = LEVELS["hautes-herbes"]; // Définit le niveau par défaut
         startGame(); // Démarrer une nouvelle partie seulement s'il n'y avait pas de sauvegarde à charger.
