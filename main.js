@@ -501,27 +501,37 @@ function openBalls(pokeballsToOpen) {
 }
 
 function saveGame() {
-   console.log("DEBUG_SAVE_START: playerInventory au début de saveGame():", playerInventory);
-  const gameState = {
-    playerMoney: playerMoney,
-    capturedPokemonIds: Array.from(capturedPokemonIds), 
-    capturedPokemonCounts: capturedPokemonCounts,
-    playerInventory: playerInventory,
-    gameStarted: gameStarted,
-    gameOver: gameOver,
-  };
-  console.log("DEBUG_SAVE_GAMETATE: gameState avant stringify:", gameState); // Log 17
-  try {
-    localStorage.setItem("pokemonMinesweeperSave", JSON.stringify(gameState));
-    // showMessage("Partie sauvegardée avec succès !", "success");
-    console.log("Game saved:", gameState);
-  } catch (e) {
-    console.error("Erreur lors de la sauvegarde de la partie:", e);
-    showMessage(
-      "Erreur lors de la sauvegarde. Espace de stockage insuffisant ou problème navigateur.",
-      "error"
-    );
-  }
+    console.log("DEBUG_SAVE_START: playerInventory au début de saveGame():", playerInventory);
+    const gameState = {
+        playerMoney: playerMoney,
+        capturedPokemonIds: Array.from(capturedPokemonIds),
+        capturedPokemonCounts: capturedPokemonCounts,
+        playerInventory: playerInventory,
+        gameStarted: gameStarted,
+        gameOver: gameOver,
+        // *** AJOUT CRUCIAL : Sauvegarde l'état de la grille ***
+        gridState: grid.map(row => row.map(cell => ({
+            row: cell.row,
+            col: cell.col,
+            isRevealed: cell.isRevealed,
+            isFlagged: cell.isFlagged,
+            status: cell.status, // "boom" ou "safe"
+            revealedByItem: cell.revealedByItem,
+            minesAround: cell.minesAround // Utile pour les cellules "safe"
+        }))),
+        currentLevelId: currentLevel ? currentLevel.id : "hautes-herbes", // Sauvegarde l'ID du niveau
+    };
+    console.log("DEBUG_SAVE_GAMETATE: gameState avant stringify:", gameState);
+    try {
+        localStorage.setItem("pokemonMinesweeperSave", JSON.stringify(gameState));
+        console.log("Game saved:", gameState);
+    } catch (e) {
+        console.error("Erreur lors de la sauvegarde de la partie:", e);
+        showMessage(
+            "Erreur lors de la sauvegarde. Espace de stockage insuffisant ou problème navigateur.",
+            "error"
+        );
+    }
 }
 
 function loadGame() {
@@ -529,27 +539,25 @@ function loadGame() {
         const savedStateString = localStorage.getItem("pokemonMinesweeperSave");
 
         if (savedStateString) {
-            // --- CAS 1 : Sauvegarde trouvée et valide ---
             const loadedState = JSON.parse(savedStateString);
             console.log("Game loaded:", loadedState);
 
             playerMoney = loadedState.playerMoney || 0;
-            // Assure-toi que capturedPokemonIds et capturedPokemonCounts ont des valeurs par défaut si absentes.
-            capturedPokemonIds = new Set(loadedState.capturedPokemonIds || []); // Ajout du || []
-            capturedPokemonCounts = loadedState.capturedPokemonCounts || {}; // Ajout du || {}
-            pokeballNbr = loadedState.pokeballNbr || 0;
+            capturedPokemonIds = new Set(loadedState.capturedPokemonIds || []);
+            capturedPokemonCounts = loadedState.capturedPokemonCounts || {};
             playerInventory = loadedState.playerInventory || {};
+            // pokeballNbr = loadedState.pokeballNbr || 0; // Si tu ne sauvegardes pas pokeballNbr dans gameState, c'est normal qu'il ne soit pas là.
+                                                          // Tu devras recalculer le pokeballNbr en fonction des capturedPokemonCounts
 
             currentLevel = LEVELS[loadedState.currentLevelId || "hautes-herbes"];
             gameStarted = loadedState.gameStarted;
             gameOver = loadedState.gameOver;
 
-            // Mettre à jour l'UI après le chargement
             playerMoneyElement.textContent = playerMoney;
-            pokeballNumberElement.innerHTML = pokeballNbr; // pokeballNbr est maintenant sauvegardé, donc ça marchera
-            updatePokedexUI(capturedPokemonIds, capturedPokemonCounts); // Utilise la fonction dédiée
+            // pokeballNumberElement.innerHTML = pokeballNbr; // Commenté car pokeballNbr n'est pas dans gameState. Tu le gères peut-être différemment.
+            updatePokedexUI(capturedPokemonIds, capturedPokemonCounts);
 
-            // Gérer les boutons et le titre
+            // Mettre à jour l'état visuel du jeu (boutons, titre)
             if (gameOver) {
                 replayButton.classList.remove("opacity-0", "pointer-events-none");
                 replayButton.classList.add("opacity-100", "pointer-events-auto");
@@ -565,27 +573,82 @@ function loadGame() {
             }
             titre.innerText = gameStarted ? "Reprise de la partie..." : "Pokémon Démineur";
 
+            // *** AJOUT CRUCIAL : Restaurer la grille depuis la sauvegarde ***
+            if (loadedState.gridState) {
+                // Créer la grille DOM d'abord
+                createGrid(currentLevel.rows, currentLevel.cols); // Cela crée la structure HTML et un tableau JS 'grid' vide
 
-            // Si tu as chargé une partie en cours, recréer la grille est une bonne idée, mais son contenu ne sera pas là.
-            // Si tu ne sauvegardes pas la grille, le jeu commencera avec une nouvelle grille visuellement.
-            // Il faudrait appeler `startGame()` après le chargement pour avoir une grille prête.
-            // Mais si gameStarted est true, ce n'est pas une nouvelle partie.
-            createGrid(currentLevel.rows, currentLevel.cols); // Créer la grille de base
-
+                // Remplir le tableau 'grid' avec les données sauvegardées
+                grid = loadedState.gridState.map(row => row.map(cellData => {
+                    const cell = {
+                        row: cellData.row,
+                        col: cellData.col,
+                        isRevealed: cellData.isRevealed,
+                        isFlagged: cellData.isFlagged,
+                        status: cellData.status,
+                        revealedByItem: cellData.revealedByItem,
+                        minesAround: cellData.minesAround
+                    };
+                    // Si la cellule est révélée ou flaggée, mettre à jour le DOM
+                    const cellElement = document.getElementById(`${cell.row * currentLevel.cols + cell.col}`);
+                    if (cellElement) {
+                        if (cell.isRevealed) {
+                            cellElement.classList.add("revealed");
+                            // Afficher le contenu (Voltorbe ou nombre)
+                            if (cell.status === "boom") {
+                                const voltorb = allPokemonData.find(p => p.id === 100);
+                                const img = document.createElement("img");
+                                img.src = voltorb ? voltorb.sprite : "./img/ball_voltorbe.png";
+                                img.classList.add("w-full", "h-full", "object-contain");
+                                cellElement.appendChild(img);
+                            } else if (cell.minesAround > 0) {
+                                const span = document.createElement("span");
+                                span.classList.add("mine-count");
+                                span.textContent = cell.minesAround;
+                                cellElement.appendChild(span);
+                            }
+                        }
+                        if (cell.isFlagged) {
+                            cellElement.classList.add("flagged");
+                            const img = document.createElement("img");
+                            img.src = "./img/red_flag.png"; // L'image du drapeau
+                            img.classList.add("w-full", "h-full", "object-contain");
+                            cellElement.appendChild(img);
+                        }
+                        if (cell.revealedByItem) {
+                             cellElement.classList.add("revealed-by-item");
+                             // Si c'est un Voltorbe révélé par l'item, assure-toi qu'il affiche le Voltorbe
+                             if (cell.status === "boom" && !cell.isRevealed) { // Si c'est pas déjà révélé par clic
+                                const voltorb = allPokemonData.find(p => p.id === 100);
+                                const img = document.createElement("img");
+                                img.src = voltorb ? voltorb.sprite : "./img/ball_voltorbe.png";
+                                img.classList.add("w-full", "h-full", "object-contain");
+                                cellElement.appendChild(img);
+                             }
+                        }
+                    }
+                    return cell;
+                }));
+                 // Après avoir restauré la grille, tu dois aussi potentiellement mettre à jour `isFirstClick`
+                isFirstClick = false; // Si une partie est chargée, ce n'est plus le premier clic
+            }
+            // Si la partie est chargée et en cours, tu n'as PAS besoin de `startGame()`
+            // `startGame()` est pour initialiser une NOUVELLE partie propre.
+            // Si tu as chargé l'état d'une partie existante, tu continues cette partie.
             showMessage("Partie chargée avec succès !", "success");
             return true; // Chargement réussi
         } else {
             // --- CAS 2 : Aucune sauvegarde trouvée ---
-           console.log("DEBUG_NO_SAVE: Aucune sauvegarde trouvée, appel de initializeGameStateForNewOrFailedLoad()"); // Log 7
-            initializeGameStateForNewOrFailedLoad(); // <-- Appel de la fonction d'initialisation
-            console.log("DEBUG_AFTER_INIT_NO_SAVE: playerInventory après initializeGameStateForNewOrFailedLoad():", playerInventory); // Log 8
+            console.log("DEBUG_NO_SAVE: Aucune sauvegarde trouvée, appel de initializeGameStateForNewOrFailedLoad()");
+            initializeGameStateForNewOrFailedLoad(); // Initialise un état de jeu par défaut
+            console.log("DEBUG_AFTER_INIT_NO_SAVE: playerInventory après initializeGameStateForNewOrFailedLoad():", playerInventory);
             showMessage("Aucune partie sauvegardée trouvée. Nouvelle partie commencée.", "info");
             return false; // Pas de sauvegarde à charger
         }
     } catch (e) {
-        console.error("DEBUG_LOAD_ERROR: Erreur lors du chargement de la partie:", e); // Log 9
-        initializeGameStateForNewOrFailedLoad(); // <-- Appel de la fonction d'initialisation en cas d'erreur
-        console.log("DEBUG_AFTER_INIT_ERROR: playerInventory après initializeGameStateForNewOrFailedLoad() (erreur):", playerInventory); // Log 10
+        console.error("DEBUG_LOAD_ERROR: Erreur lors du chargement de la partie:", e);
+        initializeGameStateForNewOrFailedLoad(); // Initialise un état de jeu par défaut en cas d'erreur
+        console.log("DEBUG_AFTER_INIT_ERROR: playerInventory après initializeGameStateForNewOrFailedLoad() (erreur):", playerInventory);
         showMessage("Erreur de chargement. Une nouvelle partie a été commencée.", "error");
         return false; // Échec du chargement
     }
@@ -723,42 +786,67 @@ function checkWinCondition() {
 }
 
 function startGame() {
-  gameOver = false;
-  gameStarted = false; // Important : gameStarted doit être false au début de chaque partie
-  revealedSafeCellsCount = 0;
-  pokeballNbr = 0; // Réinitialise le nombre de Pokéballs
-  pokeballNumberElement.innerHTML = pokeballNbr;
-  titre.innerText = "Trouvez tous les Pokémon !";
+    console.log("DEBUG: startGame() est appelée.");
 
-  replayButton.classList.add("opacity-0", "pointer-events-none");
-  replayButton.classList.remove("opacity-100", "pointer-events-auto");
+    // 1. Réinitialiser les variables d'état du jeu
+    gameOver = false;
+    gameStarted = false; // Important : gameStarted doit être false au début de chaque partie
+    revealedSafeCellsCount = 0;
+    pokeballNbr = 0; // Réinitialise le nombre de Pokéballs
+    pokeballNumberElement.innerHTML = pokeballNbr;
+    titre.innerText = "Trouvez tous les Pokémon !";
 
-  toggleLevelSelectionButtons(true);
+    // 2. Réinitialiser l'interface utilisateur des boutons
+    replayButton.classList.add("opacity-0", "pointer-events-none");
+    replayButton.classList.remove("opacity-100", "pointer-events-auto");
 
-  createGrid(currentLevel.rows, currentLevel.cols); // Crée la grille DOM sans mines initiales
-  allCells = document.querySelectorAll(".cell"); // Récupère toutes les cellules DOM
+    toggleLevelSelectionButtons(true); // Permet de sélectionner les niveaux
 
-  gridElement.style.backgroundImage = `url('${currentLevel.backgroundImage}')`;
-  gridElement.style.backgroundSize = "cover";
-  gridElement.style.backgroundRepeat = "no-repeat";
-  gridElement.style.backgroundPosition = "center";
+    // --- MODIFICATIONS CLÉS POUR RÉINITIALISER LA GRILLE ---
 
-  allCells.forEach((cell) => {
-    cell.style.pointerEvents = "auto";
-    cell.classList.remove("revealed");
-    const existingContent = cell.querySelector("img, span.mine-count");
-    if (existingContent) {
-      existingContent.remove();
+    // 3. Vider l'élément HTML de la grille pour supprimer toutes les anciennes cellules
+    // Assurez-vous que gridElement est bien défini (ce que tes logs précédents indiquent)
+    if (gridElement) {
+        gridElement.innerHTML = "";
     }
-    cell.removeAttribute("status");
-  });
+    
+    // 4. Réinitialiser complètement le tableau JavaScript 'grid'
+    // C'est CRUCIAL pour éviter l'accumulation de Voltorbes et s'assurer d'une grille vierge.
+    // Cette ligne rend 'grid' vide avant que createGrid ne la peuple avec de NOUVEAUX objets.
+    grid = []; 
 
-  console.log(
-    "Nouveau jeu démarré. Niveau :",
-    currentLevel.title,
-    "Attente du premier clic pour placer les Voltorbes."
-  );
+    // 5. Créer une NOUVELLE grille vierge JavaScript et DOM
+    // `createGrid` va maintenant remplir un tableau 'grid' vide avec de nouvelles cellules uniques.
+    createGrid(currentLevel.rows, currentLevel.cols); 
 
+    // 6. Récupérer les nouvelles cellules DOM après la recréation par createGrid
+    allCells = document.querySelectorAll(".cell"); 
+
+    // 7. Appliquer les styles de fond et réinitialiser l'état visuel des cellules
+    gridElement.style.backgroundImage = `url('${currentLevel.backgroundImage}')`;
+    gridElement.style.backgroundSize = "cover";
+    gridElement.style.backgroundRepeat = "no-repeat";
+    gridElement.style.backgroundPosition = "center";
+
+    // Pour chaque nouvelle cellule, s'assurer qu'elle est prête pour un nouveau jeu
+    allCells.forEach((cell) => {
+        cell.style.pointerEvents = "auto";
+        cell.classList.remove("revealed", "revealed-by-item", "flagged"); // Nettoyage complet des classes
+        const existingContent = cell.querySelector("img, span.mine-count"); // Enlève le contenu (Voltorbe, Pokémon, compteur)
+        if (existingContent) {
+            existingContent.remove();
+        }
+        cell.removeAttribute("status"); // Supprime l'attribut 'status' du DOM
+    });
+
+    // 8. Réinitialiser le flag du premier clic pour la logique de placement des Voltorbes
+    
+
+    console.log(
+        "Nouveau jeu démarré. Niveau :",
+        currentLevel.title,
+        "Attente du premier clic pour placer les Voltorbes."
+    );
 }
 
 function toggleLevelSelectionButtons(enable) {
@@ -970,6 +1058,11 @@ document.addEventListener("DOMContentLoaded", async () => {
    console.log("DEBUG_BEFORE_LOAD: playerInventory avant loadGame():", playerInventory);
    
   const gameLoadedSuccessfully = loadGame(); // Appelle loadGame()
+
+  if (!gameLoadedSuccessfully) {
+        currentLevel = LEVELS["hautes-herbes"]; // Définit le niveau par défaut
+        startGame(); // Démarrer une nouvelle partie seulement s'il n'y avait pas de sauvegarde à charger.
+    }
 
    console.log("DEBUG_AFTER_LOAD: playerInventory après loadGame():", playerInventory);
 
