@@ -7,7 +7,7 @@ export const EVOLUTIONS = {
   52: { evolvesTo: 53, threshold: 40, moneyBonus: 200 }, // Miaouss évolue en Persian après 50 captures
   129:{ evolvesTo: 130, threshold: 100, moneyBonus: 3000 }, // Magicarpe évolue en Léviathor après 50 captures
   56: { evolvesTo: 57, threshold: 40, moneyBonus: 400 }, // Férosinge évolue en Colossinge après 50 captures
-  25: { evolvesTo: 26, threshold: 3, moneyBonus: 500 }, // Pikachu évolue en Raichu après 50 captures
+  25: { evolvesTo: 26, threshold: 30, moneyBonus: 500 }, // Pikachu évolue en Raichu après 50 captures
   21: { evolvesTo: 22, threshold: 40, moneyBonus: 100 }, // Piafabec évolue en Rapasdepic après 50 captures
   10: { evolvesTo: 11, threshold: 30, moneyBonus: 50 }, // Chenipan évolue en Crysacier après 50 captures
   11: { evolvesTo: 12, threshold: 3, moneyBonus: 250 }, // Crysacier évolue en Papillusion après 50 captures
