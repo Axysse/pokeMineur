@@ -11,7 +11,7 @@ export const SHOP_ITEMS = [
         id: "reveal_safe_cell",
         name: "Détekt Volt.",
         description: "Révèle un Voltorbe aléatoire (à utiliser pendant le jeu).",
-        cost: 25,
+        cost: 3500,
         effect: "reveal_random_risky_cell",
         icon: "./img/red_flag.png",
     },
