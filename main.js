@@ -28,6 +28,7 @@ let inventoryBtn;
 export let playerInventory = {};
 console.log("DEBUG_INIT: playerInventory au moment de la déclaration globale:", playerInventory);
 let saveGameBtn ;
+let survive = false;
 
 
 
@@ -54,24 +55,53 @@ export function showMessage(message) {
 }
 
 function showDefeatModal() {
-  const modal = document.createElement("div");
-  modal.classList.add("defeat-modal");
-  modal.innerHTML = `
-        <div class="defeat-modal-content">
-            <h3>Oh non... C'était un Voltorbe !</h3>
-            <p>Vous vous empressez de retourner en lieu sûr.</p>
-        </div>
-    `;
-  document.body.appendChild(modal);
+    const modal = document.createElement("div");
+    modal.classList.add("defeat-modal");
+    
+    // Ajoute un identifiant à la modale pour pouvoir la cibler plus facilement
+    modal.id = "defeat-or-survive-modal"; 
 
-  modal.style.display = "flex"; // Rendre la modale visible
+    // --- LOGIQUE CLÉ : Si survive est vrai, la partie ne se termine PAS ---
+    if (survive === true) {
+        modal.innerHTML = `
+            <div class="defeat-modal-content">
+                <img src="./img/potion.png" alt="Potion" class="w-24 h-24 mx-auto mb-4 animate-bounce">
+                <h3>Oh non... C'était un Voltorbe !</h3>
+                <p>Mais comme vous êtes malin, votre potion vous a protégé(e) cette fois-ci !</p>
+                <p class="text-sm mt-2">(La partie continue)</p>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        modal.style.display = "flex"; // Rendre la modale visible
 
-  // Ferme la modale et relance le jeu après un court délai
-  setTimeout(() => {
-    modal.remove(); // Supprime la modale du DOM
-    currentLevel = LEVELS["hautes-herbes"]; // Définit le niveau par défaut
-    startGame(); // Redémarre une nouvelle partie avec le niveau Hautes-herbes
-  }, 2500); 
+        survive = false; // Réinitialise survive à false APRÈS avoir utilisé la potion pour cette explosion.
+                         // TRÈS IMPORTANT : Sinon vous êtes invincible !
+
+        // Ferme la modale et la partie continue
+        setTimeout(() => {
+            modal.remove(); // Supprime la modale du DOM
+            // La partie NE REDÉMARRE PAS, le joueur continue de jouer sur la même grille.
+        }, 2500);
+
+    } else { // --- Cas de la DÉFAITE NORMALE ---
+        modal.innerHTML = `
+            <div class="defeat-modal-content">
+                <h3>Oh non... C'était un Voltorbe !</h3>
+                <p>Vous vous empressez de retourner en lieu sûr.</p>
+                <p class="text-sm mt-2">(Une nouvelle partie va commencer)</p>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        modal.style.display = "flex"; // Rendre la modale visible
+
+        // Ferme la modale et relance le jeu après un court délai
+        setTimeout(() => {
+            modal.remove(); // Supprime la modale du DOM
+            currentLevel = LEVELS["hautes-herbes"]; // Définit le niveau par défaut
+            initializeGameStateForNewOrFailedLoad(); // Réinitialise tout l'état du jeu (argent, inventaire, etc.)
+            startGame(); // Redémarre une nouvelle partie
+        }, 2500);
+    }
 }
 
 function showAccessDeniedModal(requiredMoney) {
@@ -721,6 +751,24 @@ function game_won() {
 }
 
 function game_over() {
+      // Si une potion est active, le joueur SURVIT.
+    if (survive === true) {
+        console.log("Potion active : Le joueur a survécu à l'explosion !");
+        // Réinitialise la potion, car elle est à usage unique.
+       
+        
+        // La partie ne se termine PAS. On ne met pas gameOver à true.
+        // On n'active PAS les boutons de rejouer/sélection de niveau.
+        // On ne révèle PAS toute la grille.
+
+        // Afficher la modal de survie
+        showDefeatModal(); // Cette fonction doit gérer l'affichage spécifique de la survie
+                           // et ne PAS redémarrer le jeu.
+
+        // Très important : arrête l'exécution de la fonction game_over ici
+        // pour éviter le code de défaite normale ci-dessous.
+        return; 
+    }
   gameOver = true;
   titre.innerText = "Oh non! C'était un Voltorbe!";
   pokeballNbr = 0;
@@ -1024,9 +1072,7 @@ function updateGameVariablesAndSave(newMoney, newInventory) {
 
     playerMoneyElement.textContent = playerMoney; // Met à jour l'affichage de l'argent
     pokeballNumberElement.innerHTML = pokeballNbr;
-    
 }
-
 
 document.addEventListener("DOMContentLoaded", async () => {
   gridElement = document.getElementById("grid");
@@ -1036,7 +1082,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   titre = document.getElementById("titre");
   replayButton = document.getElementById("replay");
   pokeballNumberElement = document.getElementById("pokeballNumber");
-  playerMoneyElement = document.getElementById("playerMoney"); // NOUVEAU
+  playerMoneyElement = document.getElementById("playerMoney"); 
    const newGameButton = document.getElementById("newGameButton");
 
   saveGameBtn = document.getElementById("saveGameBtn")
@@ -1049,7 +1095,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   );
    console.log("DEBUG_BEFORE_LOAD: playerInventory avant loadGame():", playerInventory);
    
-  const gameLoadedSuccessfully = loadGame(); // Appelle loadGame()
+  const gameLoadedSuccessfully = loadGame(); 
 
       if (newGameButton) {
         newGameButton.addEventListener("click", resetGame);
@@ -1251,21 +1297,15 @@ document.addEventListener("DOMContentLoaded", async () => {
           updateCellContent(neighbor);
         }
       });
-
       checkWinCondition();
     }
   });
-
-  // pour clarifier qu'elle gère les aspects visuels et l'ajout à la file, mais pas l'ouverture de la modal elle-même
+ 
   function updatePokedexAfterEvolutionVisuals(
     basePokemon,
     evolvedPokemon,
     evolutionRule
   ) {
-    // Assurez-vous que le compteur est mis à jour si ce n'est pas déjà fait avant d'appeler ici
-    // (normalement, il l'est déjà dans la fonction updatePokedexAfterEvolution d'où celle-ci est appelée)
-    // Il est crucial que capturedPokemonCounts[evolvedPokemon.id] soit à jour ici.
-
     const pokedexImg = document.getElementById(
       `pokedex-sprite-${evolvedPokemon.id}`
     );
@@ -1364,6 +1404,9 @@ function useItem(itemId) {
         case "reveal_safe_cell":
             itemEffectResult = useRevealRiskyCellItem(); // Capture the boolean result
             break;
+        case "potion":
+            itemEffectResult = potion(); // Capture the boolean result
+            break;    
         // ... other cases
         default:
             console.warn(`Effet pour l'objet ${itemId} non implémenté.`);
@@ -1446,4 +1489,9 @@ function useRevealRiskyCellItem() {
         showMessage("Erreur lors de la révélation du Voltorbe.", "error");
         return false; // Indique que l'objet n'a pas pu être utilisé
     }
+}
+
+function potion(){
+    survive = true
+    return true;
 }

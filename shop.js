@@ -11,14 +11,20 @@ export const SHOP_ITEMS = [
         id: "reveal_safe_cell",
         name: "Détekt Volt.",
         description: "Révèle un Voltorbe aléatoire (à utiliser pendant le jeu).",
-        cost: 3500,
+        cost: 2500,
         effect: "reveal_random_risky_cell",
         icon: "./img/red_flag.png",
     },
+    {
+        id: "potion",
+        name: "Potion",
+        description: "Permet de survivre à une explosion (à utiliser pour survivre à la prochaine explosion).",
+        cost: 1500,
+        effect: "resist_death",
+        icon: "./img/potion.png",
+    },
 ];
 
-// openShopModal doit maintenant accepter deux fonctions pour gérer l'argent
-// et l'inventaire est toujours la référence directe.
 export function openShopModal(
     getPlayerMoneyFunc,         // NOUVEAU: Fonction pour obtenir l'argent global (de main.js)
     setPlayerMoneyFunc,         // NOUVEAU: Fonction pour définir l'argent global et son affichage (dans main.js)
