@@ -382,7 +382,7 @@ function openBalls(pokeballsToOpen) {
       if (encounteredPokemon) {
         handlePokemonCaptureOrEvolution(encounteredPokemon, false); // C'est une capture, pas une évolution
 
-        const pokemonMoney = encounteredPokemon.money || 0; // Utilise 0 si 'money' n'est pas défini
+        const pokemonMoney = encounteredPokemon.money || 0; 
         currentRevealTotalMoney += pokemonMoney;
         currentRevealMoneyElement.textContent = currentRevealTotalMoney;
 
@@ -1037,8 +1037,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   replayButton = document.getElementById("replay");
   pokeballNumberElement = document.getElementById("pokeballNumber");
   playerMoneyElement = document.getElementById("playerMoney"); // NOUVEAU
-  let completeNbr = 0;
-  const complete = document.getElementById("complete");
    const newGameButton = document.getElementById("newGameButton");
 
   saveGameBtn = document.getElementById("saveGameBtn")
@@ -1382,30 +1380,12 @@ function useItem(itemId) {
 }
 
 export function updateInventoryUI() {
-    // Supprime l'ancienne modale d'inventaire si elle existe pour la recréer
-    // (C'est souvent le plus simple si l'inventaire est recréé dynamiquement)
     const existingModal = document.querySelector(".inventory-modal");
     if (existingModal) {
         existingModal.remove();
     }
-    // Recrée la modale avec les données à jour
-    // Tu devras peut-être passer playerInventory et showMessage ici aussi
     openInventoryModal(playerInventory, showMessage, useItem, updateInventoryUI); // Assure-toi que c'est bien la fonction pour ouvrir/mettre à jour l'inventaire
-    // Si openInventoryModal ne rafraîchit pas tout, tu as peut-être un conteneur spécifique
-    // où tu listes les items. Mets à jour ce conteneur ici.
-    // Exemple (si tu as un élément spécifique pour l'inventaire) :
-    // const inventoryDisplayElement = document.getElementById("inventory-display");
-    // if (inventoryDisplayElement) {
-    //     inventoryDisplayElement.innerHTML = ''; // Vide l'ancien contenu
-    //     for (const itemId in playerInventory) {
-    //         if (playerInventory[itemId] > 0) {
-    //             // Crée un élément pour chaque item et l'ajoute
-    //             const itemElement = document.createElement('div');
-    //             itemElement.textContent = `${itemId}: ${playerInventory[itemId]}`;
-    //             inventoryDisplayElement.appendChild(itemElement);
-    //         }
-    //     }
-    // }
+ 
 }
 
 function useRevealRiskyCellItem() {
