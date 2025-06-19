@@ -98,7 +98,6 @@ function showDefeatModal() {
         setTimeout(() => {
             modal.remove(); // Supprime la modale du DOM
             currentLevel = LEVELS["hautes-herbes"]; // Définit le niveau par défaut
-            initializeGameStateForNewOrFailedLoad(); // Réinitialise tout l'état du jeu (argent, inventaire, etc.)
             startGame(); // Redémarre une nouvelle partie
         }, 2500);
     }
@@ -381,7 +380,7 @@ function openBalls(pokeballsToOpen) {
   modal.classList.add("pokeball-modal");
   modal.innerHTML = `
         <div class="pokeball-modal-content">
-            <h2>Vous avez attrapé <span id="pokeball-count-display">${pokeballsToOpen}</span> Pokémons) !</h2>
+            <h2>Vous avez attrapé <span id="pokeball-count-display">${pokeballsToOpen}</span> Pokémons !</h2>
             <div id="pokemon-reveal-area" class="flex flex-wrap justify-center gap-4 mt-4"></div>
             <div class="mt-4 text-xl font-bold">Total gagné : <span id="current-reveal-money">0</span> PokéDollars</div>
         </div>
