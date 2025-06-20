@@ -279,7 +279,7 @@ export const LEVELS = {
     rows: 9,
     cols: 9,
     minMines: 14,
-    maxMines: 18,
+    maxMines: 17,
     backgroundImage: "./img/volcan.jpg",
     cost: 3000,
     encounterTable: [
