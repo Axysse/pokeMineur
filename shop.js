@@ -23,6 +23,14 @@ export const SHOP_ITEMS = [
         effect: "resist_death",
         icon: "./img/potion.png",
     },
+    {
+        id: "leurre",
+        name: "Leurre à oiseaux légendaires",
+        description: "Augmente de façon permanente les chances d'apparition des oiseaux légendaire.",
+        cost: 200000,
+        effect: "lure_bird",
+        icon: "./img/leurre.png",
+    },
 ];
 
 export function openShopModal(

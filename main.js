@@ -29,6 +29,7 @@ export let playerInventory = {};
 console.log("DEBUG_INIT: playerInventory au moment de la déclaration globale:", playerInventory);
 let saveGameBtn ;
 let survive = false;
+let lure = false;
 
 
 
@@ -40,7 +41,7 @@ function getPlayerMoney() {
 
 function setPlayerMoney(amount) {
     playerMoney = amount;
-    playerMoneyElement.textContent = playerMoney; // Met à jour l'affichage global de l'argent
+    playerMoneyElement.textContent = playerMoney; 
 }
 
 export function showMessage(message) {
@@ -155,28 +156,51 @@ function showConfirmationModal(levelName, cost, onConfirm) {
 /**
  * Choisit un Pokémon aléatoirement basé sur les pourcentages de chance du tableau de rencontre.
  * @param {Array<Object>} encounterTable La table de rencontre du niveau actuel.
+ * @param {boolean} isLureActive Indique si le leurre est actif ou non.
  * @returns {Object|null} Les données du Pokémon choisi, ou null si rien n'est choisi (devrait pas arriver si total = 100).
  */
 function choosePokemon(encounterTable) {
-  const totalChance = encounterTable.reduce(
+  // Crée une table temporaire pour stocker les chances ajustées
+  const adjustedEncounterTable = encounterTable.map(entry => {
+    let currentChance = entry.chance;
+
+    // --- LOGIQUE D'AJUSTEMENT DES CHANCES ICI ---
+    if (entry.pokemonId === 145) { // C'est l'ID d'Électhor
+      if (lure === true) {
+        currentChance = 1; // Chance élevée pour Électhor avec le leurre
+        console.log(`Leurre actif : Électhor (ID 145) sa chance est ajustée à ${currentChance}.`);
+      } else {
+        currentChance = 0.1; // Revert à la chance de base si le leurre n'est pas actif
+        console.log(`Leurre inactif : Électhor (ID 145) sa chance est de ${currentChance}.`);
+      }
+    }
+    // --- FIN DE LA LOGIQUE D'AJUSTEMENT ---
+
+    return { ...entry, chance: currentChance }; // Retourne une nouvelle entrée avec la chance potentiellement ajustée
+  });
+
+  // Calcule la somme totale des chances (maintenant ajustées)
+  const totalAdjustedChance = adjustedEncounterTable.reduce(
     (sum, entry) => sum + entry.chance,
     0
   );
-  let randomPoint = Math.random() * totalChance;
 
-  for (const entry of encounterTable) {
+  let randomPoint = Math.random() * totalAdjustedChance;
+
+  for (const entry of adjustedEncounterTable) { // Utilise la table avec les chances ajustées
     if (randomPoint < entry.chance) {
       const foundPokemon = allPokemonData.find((p) => p.id === entry.pokemonId);
       if (!foundPokemon) {
         console.error(
-          `Erreur: Pokémon avec ID ${entry.pokemonId} non trouvé dans allPokemonData. Vérifiez fetch.js et LEVELS.`
+          `Erreur: Pokémon avec ID ${entry.pokemonId} non trouvé dans allPokemonData. Vérifiez vos données.`
         );
         return null;
       }
-      return { ...foundPokemon, money: entry.money || 0 }; // Crée une copie et ajoute 'money'
+      return { ...foundPokemon, money: entry.money || 0 };
     }
     randomPoint -= entry.chance;
   }
+
   console.warn(
     "choosePokemon a terminé sans trouver de Pokémon (randomPoint a dépassé toutes les chances)."
   );
@@ -1405,7 +1429,10 @@ function useItem(itemId) {
             break;
         case "potion":
             itemEffectResult = potion(); // Capture the boolean result
-            break;    
+            break;
+        case "leurre":
+            itemEffectResult = leurre(); // Capture the boolean result
+            break;        
         // ... other cases
         default:
             console.warn(`Effet pour l'objet ${itemId} non implémenté.`);
@@ -1492,5 +1519,10 @@ function useRevealRiskyCellItem() {
 
 function potion(){
     survive = true
+    return true;
+}
+
+function leurre(){
+    lure = true
     return true;
 }
