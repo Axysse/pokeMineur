@@ -165,7 +165,7 @@ function choosePokemon(encounterTable) {
     let currentChance = entry.chance;
 
     // --- LOGIQUE D'AJUSTEMENT DES CHANCES ICI ---
-    if (entry.pokemonId === 145) { // C'est l'ID d'Électhor
+    if (entry.pokemonId === 145 || entry.pokemonId === 144 || entry.pokemonId === 146 ) { // C'est l'ID d'Électhor
       if (lure === true) {
         currentChance = 1; // Chance élevée pour Électhor avec le leurre
         console.log(`Leurre actif : Électhor (ID 145) sa chance est ajustée à ${currentChance}.`);
