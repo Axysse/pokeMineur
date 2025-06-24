@@ -30,7 +30,7 @@ console.log("DEBUG_INIT: playerInventory au moment de la déclaration globale:",
 let saveGameBtn ;
 let survive = false;
 let lure = false;
-let playerLure = lure;
+
 
 let currentLevel = LEVELS["hautes-herbes"];
 
@@ -57,11 +57,7 @@ export function showMessage(message) {
 function showDefeatModal() {
     const modal = document.createElement("div");
     modal.classList.add("defeat-modal");
-    
-    // Ajoute un identifiant à la modale pour pouvoir la cibler plus facilement
     modal.id = "defeat-or-survive-modal"; 
-
-    // --- LOGIQUE CLÉ : Si survive est vrai, la partie ne se termine PAS ---
     if (survive === true) {
         modal.innerHTML = `
             <div class="defeat-modal-content">
@@ -72,18 +68,13 @@ function showDefeatModal() {
             </div>
         `;
         document.body.appendChild(modal);
-        modal.style.display = "flex"; // Rendre la modale visible
-
-        survive = false; // Réinitialise survive à false APRÈS avoir utilisé la potion pour cette explosion.
-                         // TRÈS IMPORTANT : Sinon vous êtes invincible !
-
-        // Ferme la modale et la partie continue
+        modal.style.display = "flex"; 
+        survive = false; 
         setTimeout(() => {
-            modal.remove(); // Supprime la modale du DOM
-            // La partie NE REDÉMARRE PAS, le joueur continue de jouer sur la même grille.
+            modal.remove(); 
         }, 2500);
 
-    } else { // --- Cas de la DÉFAITE NORMALE ---
+    } else { 
         modal.innerHTML = `
             <div class="defeat-modal-content">
                 <h3>Oh non... C'était un Voltorbe !</h3>
@@ -92,20 +83,18 @@ function showDefeatModal() {
             </div>
         `;
         document.body.appendChild(modal);
-        modal.style.display = "flex"; // Rendre la modale visible
-
-        // Ferme la modale et relance le jeu après un court délai
+        modal.style.display = "flex"; 
         setTimeout(() => {
-            modal.remove(); // Supprime la modale du DOM
-            currentLevel = LEVELS["hautes-herbes"]; // Définit le niveau par défaut
-            startGame(); // Redémarre une nouvelle partie
+            modal.remove(); 
+            currentLevel = LEVELS["hautes-herbes"]; 
+            startGame(); 
         }, 2500);
     }
 }
 
 function showAccessDeniedModal(requiredMoney) {
   const modal = document.createElement("div");
-  modal.classList.add("access-denied-modal"); // Classe CSS pour la modale de refus
+  modal.classList.add("access-denied-modal"); 
   modal.innerHTML = `
         <div class="access-denied-modal-content">
             <h3>Accès Refusé !</h3>
@@ -116,18 +105,18 @@ function showAccessDeniedModal(requiredMoney) {
     `;
   document.body.appendChild(modal);
 
-  modal.style.display = "flex"; // Rendre la modale visible
+  modal.style.display = "flex"; 
 
   document
     .getElementById("close-access-denied-modal")
     .addEventListener("click", () => {
-      modal.remove(); // Supprime la modale du DOM
+      modal.remove(); 
     });
 }
 
 function showConfirmationModal(levelName, cost, onConfirm) {
   const modal = document.createElement("div");
-  modal.classList.add("confirmation-modal"); // Classe CSS pour la modal de confirmation
+  modal.classList.add("confirmation-modal"); 
   modal.innerHTML = `
         <div class="confirmation-modal-content">
             <h3>Voulez-vous jouer au niveau "${levelName}" ?</h3>
@@ -140,15 +129,15 @@ function showConfirmationModal(levelName, cost, onConfirm) {
     `;
   document.body.appendChild(modal);
 
-  modal.style.display = "flex"; // Rendre la modal visible
+  modal.style.display = "flex"; 
 
   document.getElementById("confirm-buy").addEventListener("click", () => {
-    modal.remove(); // Ferme la modal
-    onConfirm(); // Exécute la fonction de rappel pour démarrer le jeu
+    modal.remove(); 
+    onConfirm(); 
   });
 
   document.getElementById("cancel-buy").addEventListener("click", () => {
-    modal.remove(); // Ferme la modal sans rien faire
+    modal.remove(); 
   });
 }
 
@@ -159,21 +148,20 @@ function showConfirmationModal(levelName, cost, onConfirm) {
  * @returns {Object|null} Les données du Pokémon choisi, ou null si rien n'est choisi (devrait pas arriver si total = 100).
  */
 function choosePokemon(encounterTable) {
-  // Crée une table temporaire pour stocker les chances ajustées
   const adjustedEncounterTable = encounterTable.map(entry => {
     let currentChance = entry.chance;
 
-    // --- LOGIQUE D'AJUSTEMENT DES CHANCES ICI ---
-    if (entry.pokemonId === 145 || entry.pokemonId === 144 || entry.pokemonId === 146 ) { // C'est l'ID d'Électhor
+
+    if (entry.pokemonId === 145 || entry.pokemonId === 144 || entry.pokemonId === 146 ) { 
       if (lure === true) {
-        currentChance = 0.5; // Chance élevée pour Électhor avec le leurre
+        currentChance = 0.5; 
         console.log(`Leurre actif : Électhor (ID 145) sa chance est ajustée à ${currentChance}.`);
       } else {
-        currentChance = 0.1; // Revert à la chance de base si le leurre n'est pas actif
+        currentChance = 0.1; 
         console.log(`Leurre inactif : Électhor (ID 145) sa chance est de ${currentChance}.`);
       }
     }
-    // --- FIN DE LA LOGIQUE D'AJUSTEMENT ---
+  
 
     return { ...entry, chance: currentChance }; // Retourne une nouvelle entrée avec la chance potentiellement ajustée
   });
@@ -562,7 +550,8 @@ function saveGame() {
         playerInventory: playerInventory,
         gameStarted: gameStarted,
         gameOver: gameOver,
-        playerLure : playerLure,
+        lure: lure,
+        
         
         gridState: grid.map(row => row.map(cell => ({
             row: cell.row,
@@ -601,7 +590,7 @@ function loadGame() {
             capturedPokemonIds = new Set(loadedState.capturedPokemonIds || []);
             capturedPokemonCounts = loadedState.capturedPokemonCounts || {};
             playerInventory = loadedState.playerInventory || {};
-            playerLure = loadedState.playerlure || false
+            lure = lure
             pokeballNbr = 0; 
             gameStarted = false;
             gameOver = false;
@@ -622,6 +611,7 @@ function loadGame() {
             toggleLevelSelectionButtons(true); 
 
             showMessage("Partie chargée avec succès ! Nouvelle partie commencée au niveau Hautes Herbes.", "success");
+             console.log(lure)
             return true; 
         } else {
             console.log("DEBUG_NO_SAVE: Aucune sauvegarde trouvée, appel de initializeGameStateForNewOrFailedLoad()");
