@@ -30,6 +30,7 @@ console.log("DEBUG_INIT: playerInventory au moment de la déclaration globale:",
 let saveGameBtn ;
 let survive = false;
 let lure = false;
+let isFirstClick = true;
 
 
 let currentLevel = LEVELS["hautes-herbes"];
@@ -739,22 +740,9 @@ function game_won() {
 }
 
 function game_over() {
-      // Si une potion est active, le joueur SURVIT.
     if (survive === true) {
         console.log("Potion active : Le joueur a survécu à l'explosion !");
-        // Réinitialise la potion, car elle est à usage unique.
-       
-        
-        // La partie ne se termine PAS. On ne met pas gameOver à true.
-        // On n'active PAS les boutons de rejouer/sélection de niveau.
-        // On ne révèle PAS toute la grille.
-
-        // Afficher la modal de survie
-        showDefeatModal(); // Cette fonction doit gérer l'affichage spécifique de la survie
-                           // et ne PAS redémarrer le jeu.
-
-        // Très important : arrête l'exécution de la fonction game_over ici
-        // pour éviter le code de défaite normale ci-dessous.
+        showDefeatModal(); 
         return; 
     }
   gameOver = true;
@@ -799,52 +787,36 @@ function createGrid(rows, cols) {
   gridElement.style.gridTemplateColumns = `repeat(${cols}, 60px)`;
   gridElement.style.gridTemplateRows = `repeat(${rows}, 60px)`;
 
-  // FIX: Create a new, unique object for each cell
   grid = Array(rows)
     .fill(null)
     .map(() =>
       Array(cols)
-        .fill(null) // Fill with null first
+        .fill(null) 
         .map(() => ({
-          // Then map to create a new object for each
           isMine: false,
           isRevealed: false,
           isFlagged: false,
           minesAround: 0,
-          status: "hidden", // Initialisation, sera 'boom' ou 'safe' par placeMines
+          status: "hidden", 
           revealedByItem: false,
         }))
     );
-
-  // You are creating the DOM elements here within createGrid, which is good.
-  // The 'renderGrid' function seems to duplicate this and should probably be merged or removed.
-  // Let's refine the loop from your renderGrid and put it here:
-
-  let cellIdCounter = 0; // Use a counter for cell IDs
+  let cellIdCounter = 0; 
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
       const cellElement = document.createElement("div");
       cellElement.classList.add("cell");
       cellElement.dataset.row = r;
       cellElement.dataset.col = c;
-      cellElement.id = cellIdCounter; // Assign unique ID
+      cellElement.id = cellIdCounter; 
       gridElement.appendChild(cellElement);
 
-      // Add event listeners directly here
       cellElement.addEventListener("contextmenu", (event) =>
         handleRightClick(event, r, c)
       );
-
-      // Store a reference to the DOM element in your JS grid object if needed
-      // (This can be useful, but make sure not to create circular references if saving/loading)
-      // For now, let's just make sure your grid[r][c] is the plain JS object.
-      // The `document.getElementById(cellId)` in other functions will get the DOM element.
-
       cellIdCounter++;
     }
   }
-
-  // After creating grid and DOM, ensure allCells is populated:
   allCells = document.querySelectorAll(".cell");
 }
 
@@ -1423,20 +1395,16 @@ export function updateInventoryUI() {
 }
 
 function useRevealRiskyCellItem() {
-    // Vérifier si le jeu est en cours
     if (!gameStarted || gameOver) {
         showMessage("Vous ne pouvez utiliser cet objet qu'en pleine partie.", "warning");
         return false;
     }
-
-    // Vérifier si le joueur possède l'objet
-    // Cette vérification est déjà faite dans useItem(), mais la garder ici peut être une bonne pratique défensive
     if (!playerInventory["reveal_safe_cell"] || playerInventory["reveal_safe_cell"] <= 0) {
         showMessage("Vous n'avez pas de Détekt Volt. !", "error");
         return false;
     }
 
-    // Trouver toutes les cellules non-révélées qui contiennent un Voltorbe
+
     const unrevealedVoltorbeCells = [];
     for (let r = 0; r < currentLevel.rows; r++) {
         for (let c = 0; c < currentLevel.cols; c++) {
@@ -1453,15 +1421,15 @@ function useRevealRiskyCellItem() {
         return false;
     }
 
-    // Choisir un Voltorbe aléatoire parmi ceux non-révélés
+   
     const randomIndex = Math.floor(Math.random() * unrevealedVoltorbeCells.length);
     const chosenVoltorbe = unrevealedVoltorbeCells[randomIndex];
     const cellId = chosenVoltorbe.row * currentLevel.cols + chosenVoltorbe.col;
     const cellElement = document.getElementById(`${cellId}`);
 
     if (cellElement) {
-        grid[chosenVoltorbe.row][chosenVoltorbe.col].isRevealed = true; // Mettre à jour l'état interne
-        grid[chosenVoltorbe.row][chosenVoltorbe.col].revealedByItem = true; // Marquer comme révélé par l'objet
+        grid[chosenVoltorbe.row][chosenVoltorbe.col].isRevealed = true; 
+        grid[chosenVoltorbe.row][chosenVoltorbe.col].revealedByItem = true; 
 
         cellElement.classList.add("revealed");
         cellElement.classList.add("revealed-by-item");
@@ -1471,14 +1439,12 @@ function useRevealRiskyCellItem() {
         img.src = voltorb ? voltorb.sprite : "./img/ball_voltorbe.png";
         img.classList.add("w-full", "h-full", "object-contain");
         cellElement.appendChild(img);
-
         showMessage("Un Voltorbe a été détecté et révélé !", "success");
-
-        return true; // Indique que l'objet a été utilisé avec succès
+        return true; 
     } else {
         console.error("Élément de cellule Voltorbe non trouvé pour ID:", cellId);
         showMessage("Erreur lors de la révélation du Voltorbe.", "error");
-        return false; // Indique que l'objet n'a pas pu être utilisé
+        return false; 
     }
 }
 
@@ -1488,6 +1454,8 @@ function potion(){
 }
 
 function leurre(){
+  if(lure != true){
     lure = true
     return true;
+  }
 }

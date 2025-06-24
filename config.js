@@ -78,8 +78,8 @@ export const LEVELS = {
     backgroundImage: "./img/grass.jpg",
     cost: 0,
     encounterTable: [
-      { pokemonId: 16, chance: 30, money: 5 }, // Roucool
-      { pokemonId: 19, chance: 30, money: 5 }, // Ratata
+      { pokemonId: 16, chance: 50, money: 5 }, // Roucool
+      { pokemonId: 19, chance: 50, money: 5 }, // Ratata
     ],
   },
   route_de_jadielle: {
@@ -92,14 +92,14 @@ export const LEVELS = {
     backgroundImage: "./img/road.jpg",
     cost: 125,
     encounterTable: [
-      { pokemonId: 1, chance: 0.5, money: 2000 }, // Bulbizarre
-      { pokemonId: 16, chance: 25, money: 10 }, // Roucool
-      { pokemonId: 19, chance: 25, money: 10 }, // Ratata
+      { pokemonId: 1, chance: 1, money: 2000 }, // Bulbizarre
+      { pokemonId: 16, chance: 20, money: 10 }, // Roucool
+      { pokemonId: 19, chance: 20, money: 10 }, // Ratata
       { pokemonId: 52, chance: 10, money: 40 }, // Miaouss
       { pokemonId: 56, chance: 5, money: 60 }, // Férosinge
-      { pokemonId: 29, chance: 15, money: 30 }, // Nidoran Femelle
-      { pokemonId: 32, chance: 15, money: 30 }, // Nidoran Mâle
-      { pokemonId: 21, chance: 20, money: 20 }, // Piafabec
+      { pokemonId: 29, chance: 10, money: 30 }, // Nidoran Femelle
+      { pokemonId: 32, chance: 10, money: 30 }, // Nidoran Mâle
+      { pokemonId: 21, chance: 15, money: 20 }, // Piafabec
       { pokemonId: 39, chance: 8, money: 45 }, // Rondoudou
       { pokemonId: 63, chance: 1, money: 80 }, // Abra
     ],
@@ -114,14 +114,14 @@ export const LEVELS = {
     backgroundImage: "./img/forest.jpg",
     cost: 350,
     encounterTable: [
-      { pokemonId: 10, chance: 25, money: 10 }, // Chenipan
-      { pokemonId: 13, chance: 25, money: 10 }, // Aspicot
+      { pokemonId: 10, chance: 20, money: 10 }, // Chenipan
+      { pokemonId: 13, chance: 20, money: 10 }, // Aspicot
       { pokemonId: 25, chance: 1, money: 500 }, // Pikachu
-      { pokemonId: 127, chance: 10, money: 100 }, // Scarabrute
+      { pokemonId: 127, chance: 12, money: 100 }, // Scarabrute
       { pokemonId: 143, chance: 3, money: 350 }, // Ronflex
       { pokemonId: 123, chance: 3, money: 300 }, // Insécateur
-      { pokemonId: 43, chance: 15, money: 30 }, // Mystherbe
-      { pokemonId: 69, chance: 15, money: 30 }, // Chétiflor
+      { pokemonId: 43, chance: 20, money: 30 }, // Mystherbe
+      { pokemonId: 69, chance: 20, money: 30 }, // Chétiflor
       { pokemonId: 63, chance: 1, money: 80 }, // Abra
     ],
   },
@@ -138,10 +138,10 @@ export const LEVELS = {
       { pokemonId: 7, chance: 1, money: 2000 }, // Carapuce
       { pokemonId: 60, chance: 10, money: 60 }, // Ptitard
       { pokemonId: 129, chance: 35, money: 10 }, // Magicarpe
-      { pokemonId: 79, chance: 15, money: 40 }, // Ramoloss
+      { pokemonId: 79, chance: 25, money: 40 }, // Ramoloss
       { pokemonId: 23, chance: 20, money: 20 }, // Abo
       { pokemonId: 63, chance: 3, money: 80 }, // Abra
-      { pokemonId: 132, chance: 3, money: 125 }, // Métamorphe
+      { pokemonId: 132, chance: 6, money: 125 }, // Métamorphe
     ],
   },
   caverne: {
@@ -154,16 +154,16 @@ export const LEVELS = {
     backgroundImage: "./img/cavern.jpg",
     cost: 750,
     encounterTable: [
-      { pokemonId: 41, chance: 30, money: 10 }, // Nosferapti
-      { pokemonId: 74, chance: 30, money: 10 }, // Racaillou
-      { pokemonId: 95, chance: 5, money: 150 }, // Onix
+      { pokemonId: 41, chance: 20, money: 10 }, // Nosferapti
+      { pokemonId: 74, chance: 20, money: 10 }, // Racaillou
+      { pokemonId: 95, chance: 4, money: 150 }, // Onix
       { pokemonId: 46, chance: 15, money: 40 }, // Paras
-      { pokemonId: 35, chance: 2, money: 200 }, // Melofée
-      { pokemonId: 27, chance: 20, money: 30 }, // Sabelette
-      { pokemonId: 63, chance: 3, money: 80 }, // Abra
-      { pokemonId: 143, chance: 3, money: 350 }, // Ronflex
-      { pokemonId: 132, chance: 3, money: 125 }, // Métamorphe
-      { pokemonId: 50, chance: 20, money: 30 }, // Métamorphe
+      { pokemonId: 35, chance: 1, money: 200 }, // Melofée
+      { pokemonId: 27, chance: 15, money: 30 }, // Sabelette
+      { pokemonId: 63, chance: 2, money: 80 }, // Abra
+      { pokemonId: 143, chance: 1, money: 350 }, // Ronflex
+      { pokemonId: 132, chance: 2, money: 125 }, // Métamorphe
+      { pokemonId: 50, chance: 20, money: 30 }, // Taupiqueur
     ],
   },
   plage: {
@@ -176,11 +176,11 @@ export const LEVELS = {
     backgroundImage: "./img/plage.jpg",
     cost: 750,
     encounterTable: [
-      { pokemonId: 129, chance: 25, money: 5 }, // Magicarpe
+      { pokemonId: 129, chance: 20, money: 5 }, // Magicarpe
       { pokemonId: 118, chance: 15, money: 25 }, // Poissirène
       { pokemonId: 116, chance: 10, money: 50 }, // hypotrempe
-      { pokemonId: 72, chance: 25, money: 5 }, // Tentacool
-      { pokemonId: 90, chance: 15, money: 15 }, // Kokiyas
+      { pokemonId: 72, chance: 20, money: 5 }, // Tentacool
+      { pokemonId: 90, chance: 12, money: 15 }, // Kokiyas
       { pokemonId: 98, chance: 15, money: 15 }, // Krabby
       { pokemonId: 131, chance: 5, money: 200 }, // Lokhlass
       { pokemonId: 132, chance: 3, money: 125 }, // Métamorphe
@@ -196,16 +196,16 @@ export const LEVELS = {
     backgroundImage: "./img/sentier.jpg",
     cost: 1500,
     encounterTable: [
-      { pokemonId: 48, chance: 20, money: 40 }, // Mimitoss
+      { pokemonId: 48, chance: 15, money: 40 }, // Mimitoss
       { pokemonId: 37, chance: 5, money: 80 }, // Goupix
-      { pokemonId: 58, chance: 15, money: 50 }, // Caninos
+      { pokemonId: 58, chance: 10, money: 50 }, // Caninos
       { pokemonId: 63, chance: 3, money: 80 }, // Abra
       { pokemonId: 66, chance: 15, money: 40 }, // Machoc
-      { pokemonId: 83, chance: 20, money: 30 }, // Canarticho
+      { pokemonId: 83, chance: 15, money: 30 }, // Canarticho
       { pokemonId: 96, chance: 15, money: 50 }, // Soporifik
       { pokemonId: 108, chance: 10, money: 60 }, // Exelangue
-      { pokemonId: 114, chance: 15, money: 60 }, // Saquedeneu
-      { pokemonId: 132, chance: 3, money: 125 }, // Métamorphe
+      { pokemonId: 114, chance: 10, money: 60 }, // Saquedeneu
+      { pokemonId: 132, chance: 2, money: 125 }, // Métamorphe
     ],
   },
   centrale: {
@@ -221,13 +221,13 @@ export const LEVELS = {
       { pokemonId: 100, chance: 25, money: 1 }, // Voltorbe
       { pokemonId: 125, chance: 15, money: 30 }, // Elektek
       { pokemonId: 145, chance: 0.1, money: 15000 }, // Electhor
-      { pokemonId: 137, chance: 3, money: 100 }, // Porygon
+      { pokemonId: 137, chance: 5, money: 100 }, // Porygon
       { pokemonId: 135, chance: 1, money: 1500 }, // Voltali
-      { pokemonId: 132, chance: 3, money: 125 }, // Métamorphe
+      { pokemonId: 132, chance: 6, money: 125 }, // Métamorphe
       { pokemonId: 122, chance: 10, money: 60 }, // M.Mime
-      { pokemonId: 113, chance: 8, money: 100 }, // Leveinard
+      { pokemonId: 113, chance: 10, money: 100 }, // Leveinard
       { pokemonId: 81, chance: 25, money: 5 }, // Magnéti
-      { pokemonId: 25, chance: 2, money: 500 }, // Pikachu
+      { pokemonId: 25, chance: 3, money: 500 }, // Pikachu
     ],
   },
     manoir: {
@@ -240,16 +240,16 @@ export const LEVELS = {
     backgroundImage: "./img/manoir.jpg",
     cost: 2000,
     encounterTable: [
-      { pokemonId: 96, chance: 15, money: 50 }, // Soporifik
+      { pokemonId: 96, chance: 20, money: 50 }, // Soporifik
       { pokemonId: 92, chance: 25, money: 10 }, // Fantominus
       { pokemonId: 104, chance: 5, money: 80 }, // Osselait
       { pokemonId: 105, chance: 1, money: 1000 }, // Osselait
       { pokemonId: 132, chance: 3, money: 125 }, // Métamorphe
-      { pokemonId: 122, chance: 10, money: 60 }, // M.Mime
+      { pokemonId: 122, chance: 15, money: 60 }, // M.Mime
       { pokemonId: 106, chance: 8, money: 70 }, // kicklee
       { pokemonId: 107, chance: 8, money: 70 }, // Tygnon
       { pokemonId: 57, chance: 5, money: 300 }, // Colossinge
-      { pokemonId: 88, chance: 10, money: 65 }, // Tadmorv
+      { pokemonId: 88, chance: 15, money: 65 }, // Tadmorv
     ],
   },
     iles: {
@@ -262,14 +262,15 @@ export const LEVELS = {
     backgroundImage: "./img/iles.jpg",
     cost: 2500,
     encounterTable: [
-      { pokemonId: 86, chance: 15, money: 70 }, // Otaria
-      { pokemonId: 120, chance: 10, money: 80 }, // Stari
-      { pokemonId: 124, chance: 15, money: 60 }, // Lippoutou
+      { pokemonId: 86, chance: 25, money: 70 }, // Otaria
+      { pokemonId: 120, chance: 20, money: 80 }, // Stari
+      { pokemonId: 124, chance: 20, money: 60 }, // Lippoutou
       { pokemonId: 134, chance: 1, money: 1500 }, // Aquali
       { pokemonId: 144, chance: 0.1, money: 15000 }, // Artikodin
       { pokemonId: 147, chance: 3, money: 500 }, // Minidraco
-      { pokemonId: 116, chance: 10, money: 50 }, // hypotrempe
-      { pokemonId: 117, chance: 2, money: 400 }, // hypocéan
+      { pokemonId: 116, chance: 25, money: 50 }, // hypotrempe
+      { pokemonId: 117, chance: 1, money: 400 }, // hypocéan
+      { pokemonId: 79, chance: 20, money: 40 }, // Ramoloss
       { pokemonId: 80, chance: 5, money: 300 }, // Flagadoss
     ],
   },
@@ -284,13 +285,14 @@ export const LEVELS = {
     cost: 3000,
     encounterTable: [
       { pokemonId: 4, chance: 1, money: 1500 }, // Salamèche
-      { pokemonId: 77, chance: 10, money: 100 }, // Ponyta
+      { pokemonId: 77, chance: 13, money: 100 }, // Ponyta
       { pokemonId: 84, chance: 15, money: 60 }, // Doduo
-      { pokemonId: 126, chance: 5, money: 500 }, // Magmar
+      { pokemonId: 126, chance: 10, money: 500 }, // Magmar
       { pokemonId: 136, chance: 1, money: 1500 }, // Pyroli
       { pokemonId: 146, chance: 0.1, money: 15000 }, // Sulfura
-      { pokemonId: 51, chance: 20, money: 70 }, // Triopikeur
-      { pokemonId: 109, chance: 15, money: 150 }, // Smogo
+      { pokemonId: 51, chance: 10, money: 70 }, // Triopikeur
+      { pokemonId: 109, chance: 25, money: 150 }, // Smogo
+      { pokemonId: 50, chance: 25, money: 30 }, // Taupiqueur
     ],
   },
 };
