@@ -30,8 +30,7 @@ console.log("DEBUG_INIT: playerInventory au moment de la déclaration globale:",
 let saveGameBtn ;
 let survive = false;
 let lure = false;
-
-
+let playerLure = lure;
 
 let currentLevel = LEVELS["hautes-herbes"];
 
@@ -167,7 +166,7 @@ function choosePokemon(encounterTable) {
     // --- LOGIQUE D'AJUSTEMENT DES CHANCES ICI ---
     if (entry.pokemonId === 145 || entry.pokemonId === 144 || entry.pokemonId === 146 ) { // C'est l'ID d'Électhor
       if (lure === true) {
-        currentChance = 1; // Chance élevée pour Électhor avec le leurre
+        currentChance = 0.5; // Chance élevée pour Électhor avec le leurre
         console.log(`Leurre actif : Électhor (ID 145) sa chance est ajustée à ${currentChance}.`);
       } else {
         currentChance = 0.1; // Revert à la chance de base si le leurre n'est pas actif
@@ -355,7 +354,7 @@ function showEvolutionModal(basePokemon, evolvedPokemon, evolutionRule) {
     const evolutionAudio = new Audio(evolvedPokemon.cry);
     evolutionAudio.play();
 
-    // NOUVEAU : Traiter l'évolution comme une "capture" pour le Pokédex et les futures évolutions
+
     handlePokemonCaptureOrEvolution(
       evolvedPokemon,
       true,
@@ -563,13 +562,14 @@ function saveGame() {
         playerInventory: playerInventory,
         gameStarted: gameStarted,
         gameOver: gameOver,
-        // *** AJOUT CRUCIAL : Sauvegarde l'état de la grille ***
+        playerLure : playerLure,
+        
         gridState: grid.map(row => row.map(cell => ({
             row: cell.row,
             col: cell.col,
             isRevealed: cell.isRevealed,
             isFlagged: cell.isFlagged,
-            status: cell.status, // "boom" ou "safe"
+            status: cell.status,
             revealedByItem: cell.revealedByItem,
             minesAround: cell.minesAround 
         }))),
@@ -601,92 +601,72 @@ function loadGame() {
             capturedPokemonIds = new Set(loadedState.capturedPokemonIds || []);
             capturedPokemonCounts = loadedState.capturedPokemonCounts || {};
             playerInventory = loadedState.playerInventory || {};
-            
-            // pokeballNbr n'est pas sauvegardé, donc on le remet à 0 pour la nouvelle partie
+            playerLure = loadedState.playerlure || false
             pokeballNbr = 0; 
-
-            // Ces variables d'état du jeu ne sont pas pertinentes si la grille est réinitialisée.
-            // On les met à l'état de "nouvelle partie non commencée"
             gameStarted = false;
             gameOver = false;
            
 
-            // --- 2. Mettre à jour l'UI du joueur ---
-            playerMoneyElement.textContent = playerMoney;
-            pokeballNumberElement.innerHTML = pokeballNbr; // Afficher le 0 pour les pokeballs
-            updatePokedexUI(capturedPokemonIds, capturedPokemonCounts);
-
-            // --- 3. Démarrer une nouvelle partie (grille) avec le niveau "hautes-herbes" ---
-            currentLevel = LEVELS["hautes-herbes"]; // Toujours ce niveau après chargement
             
-            // Réinitialiser les compteurs de cellules (importants pour la nouvelle grille)
+            playerMoneyElement.textContent = playerMoney;
+            pokeballNumberElement.innerHTML = pokeballNbr; 
+            updatePokedexUI(capturedPokemonIds, capturedPokemonCounts);
+            
+            currentLevel = LEVELS["hautes-herbes"]; 
             revealedSafeCellsCount = 0;
             safeCellsToReveal = 0;
+            startGame(); 
 
-            // Appeler startGame() pour créer une nouvelle grille pour le niveau "hautes-herbes"
-            // et mettre l'UI du jeu dans l'état de "prêt à jouer".
-            startGame(); // Cela va créer la grille DOM/JS et gérer son état visuel initial.
-
-            // --- 4. Mettre à jour le message et les boutons après le chargement ---
-            titre.innerText = "Partie chargée ! Commencez une nouvelle partie."; // Message plus clair
-            replayButton.classList.add("opacity-0", "pointer-events-none"); // Cache le bouton replay si tu veux
-            toggleLevelSelectionButtons(true); // Affiche les sélecteurs de niveau pour commencer
+            titre.innerText = "Partie chargée ! Commencez une nouvelle partie."; 
+            replayButton.classList.add("opacity-0", "pointer-events-none"); 
+            toggleLevelSelectionButtons(true); 
 
             showMessage("Partie chargée avec succès ! Nouvelle partie commencée au niveau Hautes Herbes.", "success");
-            return true; // Chargement réussi de l'état du joueur
+            return true; 
         } else {
-            // --- CAS 2 : Aucune sauvegarde trouvée ---
             console.log("DEBUG_NO_SAVE: Aucune sauvegarde trouvée, appel de initializeGameStateForNewOrFailedLoad()");
-            initializeGameStateForNewOrFailedLoad(); // Initialise un état de jeu par défaut
-            currentLevel = LEVELS["hautes-herbes"]; // Définit le niveau par défaut
-            startGame(); // Démarrer une nouvelle partie complète
+            initializeGameStateForNewOrFailedLoad(); 
+            currentLevel = LEVELS["hautes-herbes"]; 
+            startGame(); 
             showMessage("Aucune partie sauvegardée trouvée. Nouvelle partie commencée.", "info");
-            return false; // Pas de sauvegarde à charger
+            return false; 
         }
     } catch (e) {
         console.error("DEBUG_LOAD_ERROR: Erreur lors du chargement de la partie:", e);
-        // En cas d'erreur critique, initialiser une nouvelle partie propre
+        
         initializeGameStateForNewOrFailedLoad();
-        currentLevel = LEVELS["hautes-herbes"]; // Définit le niveau par défaut
-        startGame(); // Démarrer une nouvelle partie complète
+        currentLevel = LEVELS["hautes-herbes"]; 
+        startGame(); 
         showMessage("Erreur de chargement. Une nouvelle partie a été commencée.", "error");
-        return false; // Échec du chargement
+        return false; 
     }
 }
 
 function resetGame() {
-    // Demande une confirmation à l'utilisateur car cette action est irréversible
     if (!confirm("Êtes-vous sûr de vouloir commencer une NOUVELLE PARTIE ? Toutes vos données sauvegardées (argent, inventaire, Pokédex) seront EFFACÉES DÉFINITIVEMENT !")) {
-        return; // Si l'utilisateur annule, on ne fait rien
+        return; 
     }
 
     console.log("Début de la réinitialisation complète du jeu.");
 
-    // 1. Supprimer toutes les données du localStorage liées au jeu
-    // C'est CRUCIAL pour effacer la sauvegarde persistante
     localStorage.removeItem("playerMoney");
     localStorage.removeItem("playerInventory");
     localStorage.removeItem("capturedPokemonCounts");
     localStorage.removeItem("capturedPokemonIds");
-    localStorage.removeItem("gameSaveState"); // Si tu as une sauvegarde globale
+    localStorage.removeItem("gameSaveState"); 
 
-    // 2. Réinitialiser les variables globales du jeu à leurs valeurs par défaut
-    // Assure-toi que ces valeurs correspondent à celles d'un début de partie.
-    playerMoney = 0; // Ou toute autre valeur initiale
-    playerInventory = {}; // Inventaire vide
-    capturedPokemonCounts = {}; // Compteurs de Pokémon à zéro
-    capturedPokemonIds = new Set(); // Pokédex vide (tous grisés)
+    playerMoney = 0; 
+    playerInventory = {}; 
+    capturedPokemonCounts = {}; 
+    capturedPokemonIds = new Set(); 
 
-    // Optionnel : Réinitialiser le niveau par défaut si tu veux que chaque nouvelle partie commence au même endroit
-    currentLevel = LEVELS["hautes-herbes"]; // Remet au niveau initial si ce n'est pas le cas
+    currentLevel = LEVELS["hautes-herbes"];
 
-    // 3. Mettre à jour l'affichage des éléments réinitialisés
+   
     playerMoneyElement.textContent = playerMoney;
-    pokeballNumberElement.innerHTML = 0; // Réinitialise le compteur de pokeballs de la partie en cours
-    titre.innerText = "Trouvez tous les Pokémon !"; // Réinitialise le titre
+    pokeballNumberElement.innerHTML = 0;
+    titre.innerText = "Trouvez tous les Pokémon !"; 
 
-    // 4. Mettre à jour le Pokédex visuellement
-    // Parcourir tous les éléments du Pokédex pour les remettre à l'état "non découvert"
     allPokemonData.forEach(pokemon => {
         const pokeImg = document.getElementById(`pokedex-sprite-${pokemon.id}`);
         const pokeName = document.getElementById(`pokedex-name-${pokemon.id}`);
@@ -697,49 +677,44 @@ function resetGame() {
         if (pokeCount) pokeCount.textContent = 0;
     });
     console.log("Pokédex visuellement réinitialisé.");
-
-    // 5. Appeler startGame() pour préparer une nouvelle grille et lancer une partie
-    // startGame() contient déjà la logique pour réinitialiser la grille, les compteurs de partie, etc.
     startGame();
 
     showMessage("Une nouvelle partie a commencé ! Vos anciennes données ont été effacées.", "success");
     console.log("Jeu complètement réinitialisé. Nouvelle partie lancée.");
 }
 
-// --- NOUVELLE FONCTION POUR INITIALISER L'ÉTAT DU JEU LORS D'UNE NOUVELLE PARTIE OU D'UN ÉCHEC DE CHARGEMENT ---
-// Cela évite la duplication de code et assure la cohérence.
+
 function initializeGameStateForNewOrFailedLoad() {
-    console.log("DEBUG_INIT_STATE_START: playerInventory au début de initializeGameStateForNewOrFailedLoad():", playerInventory); // Log 11
+    console.log("DEBUG_INIT_STATE_START: playerInventory au début de initializeGameStateForNewOrFailedLoad():", playerInventory); 
     playerMoney = 0;
     capturedPokemonIds = new Set();
     capturedPokemonCounts = {};
-    pokeballNbr = 5; // Pokéballs de départ pour une nouvelle partie
+    pokeballNbr = 5; 
     playerInventory = {
-        "pokeball_pack_5": 1, // Exemple: un pack de 5 Pokéballs de départ
-        "reveal_safe_cell": 0 // 0 au départ, si tu veux le gérer via l'inventaire
+        "pokeball_pack_5": 1,
+        "reveal_safe_cell": 0 
     };
-      console.log("DEBUG_INIT_STATE_ASSIGN: playerInventory après initialisation dans initializeGameStateForNewOrFailedLoad():", playerInventory); // Log 12
+      console.log("DEBUG_INIT_STATE_ASSIGN: playerInventory après initialisation dans initializeGameStateForNewOrFailedLoad():", playerInventory); 
     currentLevel = LEVELS["hautes-herbes"];
     gameStarted = false;
     gameOver = false;
     safeCellsToReveal = 0;
     revealedSafeCellsCount = 0;
 
-    // Mise à jour de l'UI pour cet état de départ
+
     playerMoneyElement.textContent = playerMoney;
     pokeballNumberElement.innerHTML = pokeballNbr;
-    updatePokedexUI(); // Met à jour l'affichage du Pokédex (tout grisé)
+    updatePokedexUI(); 
     titre.innerText = "Pokémon Démineur";
     replayButton.classList.add("opacity-0", "pointer-events-none");
-    replayButton.classList.remove("opacity-100", "pointer-events-auto"); // Assure-toi qu'il est bien caché
+    replayButton.classList.remove("opacity-100", "pointer-events-auto"); 
     toggleLevelSelectionButtons(true);
 
-    createGrid(currentLevel.rows, currentLevel.cols); // Crée une grille vide pour le départ
-    // Pas besoin d'appeler startGame() ici, car DOMContentLoaded s'en occupe si loadGame() retourne false.
-    // startGame() sera appelée au premier clic sur la grille ou si un niveau est choisi.
+    createGrid(currentLevel.rows, currentLevel.cols); 
+    
 }
 
-// Assure-toi que cette fonction existe et est correctement définie dans main.js
+
 function updatePokedexUI(ids = capturedPokemonIds, counts = capturedPokemonCounts) {
     allPokemonData.forEach((pokemon) => {
         const pokedexImg = document.getElementById(`pokedex-sprite-${pokemon.id}`);
